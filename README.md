@@ -19,5 +19,5 @@ git clone https://github.com/teamgc35/ASSIGNMENT_Group_Project.git
 cd ASSIGNMENT_Group_Project
 code .
 ```
-6. Install Vscode Plugin
-On the left side, you shall see a menu with icons. Click the fifth one. And Search `C`. Just install the first one. After this is done, you are good to go.
+6. Install Vscode Plugin  
+> On the left side, you shall see a menu with icons. Click the fifth one. And Search `C`. Just install the first one. After this is done, you are good to go.
