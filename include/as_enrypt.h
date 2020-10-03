@@ -31,7 +31,7 @@ void encrypt_char(char* __dest, const char* __src, const int __num);
  * @param uint64_t: the length of Source string
  * @return status_t
  */
-status_t encrypt_str(char** __res, const char* __src, uint64_t n);
+status_t encrypt_str(char** __res, const char* __src);
 
 /**
  * @description: translate an encrypted char into plaintext char
@@ -49,6 +49,6 @@ void decrypt_char(char* __dest, const char* __src, const int __num);
  * @param uint64_t: the length of source string
  * @return status_t
  */
-status_t decrypt_str(char** __res, const char* __src, uint64_t n);
+status_t decrypt_str(char** __res, char* __src);
 
 #endif

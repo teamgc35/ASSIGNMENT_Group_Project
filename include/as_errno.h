@@ -9,7 +9,6 @@
 #define ERR_NULLPTR 100
 
 static status_t as_errno;
-static char err_msg[128];
 
 /* set error */
 void as_seterr(status_t, const char*); 
