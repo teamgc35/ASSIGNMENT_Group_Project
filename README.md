@@ -21,3 +21,11 @@ code .
 ```
 6. Install Vscode Plugin  
 > On the left side, you shall see a menu with icons. Click the fifth one. And Search `C`. Just install the first one. After this is done, you are good to go.
+### How to Execute TestCase
+```shell
+mkdir build
+cd build
+cmake ..
+make
+./TestCase
+```
