@@ -11,11 +11,10 @@ add_library(
     assignment STATIC
     ${SRC_DIR}
 )
+add_compile_options(-Wextra)
 
-add_executable(
-    TestCase ${PROJECT_SOURCE_DIR}/test/TestCase.c
-)
+add_executable(TestCase ${PROJECT_SOURCE_DIR}/test/TestCase.c)
+target_link_libraries(TestCase assignment)
 
-target_link_libraries(
-    TestCase assignment
-)
+add_executable(hd_program main.c)
+target_link_libraries(hd_program assignment)

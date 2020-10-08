@@ -24,7 +24,7 @@ status_t encrypt_str(char **__res, const char *__src)
     assert(buffer);
     if (buffer == NULL)
         return ERR_NULLPTR;
-    // use __src_len as the rand seed; and store it at first 8 bytes of the encrypted char*
+    // use __src_len as the rand seed; and store it at first 4 bytes of the encrypted char*
     *buffer = (int32_t)__src_len;
     char *char_head = (char *)(buffer + 1);
     register uint64_t i;

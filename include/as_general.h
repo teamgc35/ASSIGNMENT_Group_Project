@@ -10,4 +10,8 @@ typedef unsigned long uint64_t;
 typedef float float32_t;
 typedef double float64_t;
 
+#define MAX_NAME_LENGTH 32
+
+#define TITLE "<HD PROGRAM>"
+
 #endif
