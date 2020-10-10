@@ -13,8 +13,11 @@ add_library(
 )
 add_compile_options(-Wextra)
 
-add_executable(TestCase ${PROJECT_SOURCE_DIR}/test/TestCase.c)
-target_link_libraries(TestCase assignment)
+add_executable(TestCase_Encryption ${PROJECT_SOURCE_DIR}/test/TestCase_Encryption.c)
+target_link_libraries(TestCase_Encryption assignment)
+
+add_executable(TestCase_LinkedList ${PROJECT_SOURCE_DIR}/test/TestCase_LinkedList.c)
+target_link_libraries(TestCase_LinkedList assignment)
 
 add_executable(hd_program main.c)
 target_link_libraries(hd_program assignment)
