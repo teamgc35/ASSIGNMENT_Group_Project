@@ -1,7 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "as_general.h"
+#include "as_functional.h"
+#include "as_argparse.h"
 
 /**
  * @description: Display menu, and get user choice
@@ -26,24 +29,28 @@ static void extract_file();
 
 int main(int argc, const char *argv[])
 {
-    // int choice;
-    // choice = menu();
-    FILE *file = fopen("./text.txt", "r");
-    if(file == NULL)
+    if (argc == 1)
     {
-        perror("Fail to open");
+        int choice;
+        while (1)
+        {
+            choice = menu();
+            if (choice == 7)
+                return 0;
+            call(choice);
+        }
+        return 0;
     }
-    int nLen = 0;
-    fseek(file, 0, SEEK_END);
-    nLen = ftell(file);
-    rewind(file);
-    char* buffer = (char*)malloc(sizeof(char)*nLen + 1);
-    nLen = fread(buffer, sizeof(char), nLen, file);
-    buffer[nLen] = '\0';
-    printf("%s\n", buffer);
-    fclose(file);
-    free(buffer);
-    return 0;
+    if (argc > 1)
+    {
+        if (!strcmp(argv[1], "encrypt"))
+        {
+            char* src_path;
+            char* out_path;
+            char* passwd;
+        }
+
+    }
 }
 
 static void call(const int choice)
@@ -93,16 +100,60 @@ static int menu()
     printf("4. Retrive Login Credential.\n");
     printf("5. Compress a File.\n");
     printf("6. Extract a File.\n");
+    printf("7. Exit Program.\n");
+    printf("Please enter your choice: ");
     scanf("%d", &choice);
     return choice;
 }
 
 static void encrypt_file()
 {
+    char path[256];
+    char password[32];
+    status_t rv;
+
+    printf("Please enter the file path: ");
+    scanf("%s", path);
+    FILE *Fp_in = fopen(path, "r");
+    if (Fp_in == NULL)
+        perror("Failed to open input file.\n");
+    printf("Please enter the output path: ");
+    memset(path, '\0', 256);
+    scanf("%s", path);
+    FILE *Fp_out = fopen(path, "w");
+    if (Fp_out == NULL)
+        perror("Failed to open output file.\n");
+    printf("Please enter the password (Max length 31): ");
+    scanf("%s", password);
+    rv = Fn_encrypt_file(password, Fp_in, Fp_out);
+    if (rv != 0)
+        perror("Failed to encrypt file.\n");
 }
+
 static void decrypt_file()
 {
+    char path[256];
+    char password[32];
+    status_t rv;
+
+    printf("Please enter the file path: ");
+    scanf("%s", path);
+    FILE *Fp_in = fopen(path, "r");
+    if (Fp_in == NULL)
+        perror("Failed to open input file.\n");
+    printf("Please enter the output path: ");
+    memset(path, '\0', 256);
+    scanf("%s", path);
+    FILE *Fp_out = fopen(path, "w");
+    if (Fp_out == NULL)
+        perror("Failed to open output file.\n");
+    printf("Please enter the password (Max length 31):");
+    scanf("%s", password);
+    rv = Fn_decrypt_file(password, Fp_in, Fp_out);
+    if (rv != 0)
+        perror("Failed to decrypt file.\n");
 }
+
 static void store_login_credential()
 {
 }

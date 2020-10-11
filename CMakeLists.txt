@@ -11,7 +11,7 @@ add_library(
     assignment STATIC
     ${SRC_DIR}
 )
-add_compile_options(-Wextra)
+add_compile_options(-Wextra -Werror -ansi -std=c99)
 
 add_executable(TestCase_Encryption ${PROJECT_SOURCE_DIR}/test/TestCase_Encryption.c)
 target_link_libraries(TestCase_Encryption assignment)

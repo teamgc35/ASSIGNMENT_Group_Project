@@ -11,7 +11,7 @@
 
 #include "as_general.h"
 
-void file_encrypt(const char *password, const char *path);
-void file_decrypt(const char *password, const char *path);
+status_t Fn_encrypt_file(const char *password, FILE* src, FILE* out);
+status_t Fn_decrypt_file(const char *password, FILE* src, FILE* out);
 
 #endif

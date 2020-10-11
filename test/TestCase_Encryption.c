@@ -1,4 +1,4 @@
-#include "as_enrypt.h"
+#include "as_encrypt.h"
 #include "as_errno.h"
 
 #include <string.h>
@@ -52,14 +52,20 @@ void Test_EncryptString3()
 
 void Test_EncryptBuffer1()
 {
+    uint64_t i;
+    double src_sum = 0;
+    double decrypted_sum = 0;
     double buffer[] = {1, 2, 3, 4};
+    for(i = 0; i < 4; i++)
+        src_sum += buffer[i];
     encrbuff_t encrypted;
     double *decrypted;
     encrypt_buff(&encrypted, buffer, sizeof(double) * 4);
-    decrypt_buff((void**)&decrypted, &encrypted);
-    for(int i = 0; i < 4; i++)
-        printf("%lf ", decrypted[i]);
-    printf("\n");
+    decrypt_buff((void **)&decrypted, &encrypted);
+    for(i = 0; i < 4; i++)
+        decrypted_sum += decrypted[i];
+    assert(decrypted_sum == src_sum);
+    printf("Test Encrypt Buffer 1 PASS\n");
 }
 
 int main()
@@ -67,5 +73,6 @@ int main()
     Test_EncryptString1();
     Test_EncryptString2();
     Test_EncryptString3();
+    Test_EncryptBuffer1();
     return 0;
 }
