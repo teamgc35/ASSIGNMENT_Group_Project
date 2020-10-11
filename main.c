@@ -25,6 +25,7 @@ static void encrypt_file();
 static void decrypt_file();
 static void compress_file();
 static void extract_file();
+static void cli_help();
 
 int main(int argc, const char *argv[])
 {
@@ -42,11 +43,82 @@ int main(int argc, const char *argv[])
     }
     if (argc > 1)
     {
+        /* show usage of the program */
+        if (has_larg(argc, argv, "help") || has_sarg(argc, argv, 'h'))
+        {
+            cli_help();
+            return 0;
+        }
+        /* Perform encryption funciton */
         if (!strcmp(argv[1], "encrypt"))
         {
-            char *src_path;
-            char *out_path;
-            char *passwd;
+            const char *src_path = parse_argv(argc, argv+1, "src", 's');
+            const char *out_path = parse_argv(argc, argv+1, "out", 'o');
+            const char *passwd = parse_argv(argc, argv+1, "passwd", 'p');
+            /* If any of those argv is NULL display usage to the user */
+            if (!src_path || !out_path || !passwd)
+            {
+                fprintf(stderr, "Invalid Arguments Format\n");
+                cli_help();
+                return 1;
+            }
+            status_t rv;
+            FILE *Fp_in = fopen(src_path, "rb");
+            if (Fp_in == NULL)
+            {
+                fprintf(stderr, "Unable to open the source file.\n");
+                return 1;
+            }
+            FILE *Fp_out = fopen(out_path, "wb");
+            if (Fp_out == NULL)
+            {
+                fprintf(stderr, "Unable to open the output file.\n");
+                return 1;
+            }
+            rv = Fn_encrypt_file(passwd, Fp_in, Fp_out);
+            fclose(Fp_in);
+            fclose(Fp_out);
+            if (rv != STATUS_OK)
+            {
+                fprintf(stderr, "Failed to enceypt the file.\n");
+                return 1;
+            }
+            return 0;
+        }
+        if (!strcmp(argv[1], "decrypt"))
+        {
+            const char *src_path = parse_argv(argc, argv+1, "src", 's');
+            const char *out_path = parse_argv(argc, argv+1, "out", 'o');
+            const char *passwd = parse_argv(argc, argv+1, "passwd", 'p');
+            /* If any of those argv is NULL display usage to the user */
+            if (!src_path || !out_path || !passwd)
+            {
+                fprintf(stderr, "Invalid Arguments Format\n");
+                cli_help();
+                return 1;
+            }
+            status_t rv;
+            FILE *Fp_in = fopen(src_path, "rb");
+            if (Fp_in == NULL)
+            {
+                fprintf(stderr, "Unable to open the source file.\n");
+                return 1;
+            }
+            FILE *Fp_out = fopen(out_path, "wb");
+            if (Fp_out == NULL)
+            {
+                fprintf(stderr, "Unable to open the output file.\n");
+                return 1;
+            }
+            rv = Fn_decrypt_file(passwd, Fp_in, Fp_out);
+            fclose(Fp_in);
+            fclose(Fp_out);
+            if (rv != STATUS_OK)
+            {
+                fprintf(stderr, "Failed to enceypt the file.\n");
+                return 1;
+            }
+            return 0;
         }
     }
 }
@@ -196,4 +268,19 @@ static void compress_file()
 }
 static void extract_file()
 {
+}
+static void cli_help()
+{
+    printf("usage: %s [--help | -h]\n"
+           "\t\t  <command> [<args>]\n"
+           "There are four commands provided:\n"
+           "  encrypt\tEncrypt a file object\n"
+           "    args: [--src | -s <Source File Path>] [--out | -o <Output File Path>] [--passwd | -p <password>]\n"
+           "  decrypt\tDecrypt a file object\n"
+           "    args: [--src | -s <Source File Path>] [--out | -o <Output File Path>] [--passwd | -p <password>]\n"
+           "  compress\tCompress a file object\n"
+           "    args: [--src | -s <Source File Path>] [--out | -o <Output File Path>]\n"
+           "  extact\tExtract Compress data\n"
+           "    args: [--src | -s <Source File Path>] [--out | -o <Output File Path>]\n"
+           "hd_program");
 }

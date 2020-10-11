@@ -50,3 +50,11 @@ const char *get_larg(int argc, const char **argv, const char *larg)
         return NULL;
     return argv[rv];
 }
+
+const char *parse_argv(int argc, const char **argv, const char *larg, const char sarg)
+{
+    const char *temp = get_larg(argc, argv, larg);
+    if (temp == NULL)
+        return get_sarg(argc, argv, sarg);
+    return temp;
+}

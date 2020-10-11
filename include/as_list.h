@@ -26,4 +26,12 @@ status_t list_Destroy(list_t* __list);
 status_t list_Insert(list_t* __list, const uint64_t __index, void* __data);
 status_t list_InsertWithCondition(list_t* __list, int(*func)(const lnode_t* __node));
 
+/**
+ * @description: This will finalize the linked list, store the continuous data into __dest;
+ * @param list_t*: which list to store
+ * @param void** : where to store
+ * @return status_t
+ */
+status_t list_Finalize(const list_t* __list, void **__dest);
+
 #endif
