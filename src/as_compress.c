@@ -1,5 +1,6 @@
 #include "as_compress.h"
 
+static void scan_src();
 
 
 // 1. scan the input
@@ -7,8 +8,9 @@
 // 3. establish huffman tree
 // 4. encode
 
-status_t compr_HFM(char **__dest, char** src)
+void compr_HFM(char **__dest, const char* __src)
 {
 
 }
+
 

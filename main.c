@@ -26,8 +26,24 @@ static void extract_file();
 
 int main(int argc, const char *argv[])
 {
-    int choice;
-    choice = menu();
+    // int choice;
+    // choice = menu();
+    FILE *file = fopen("./text.txt", "r");
+    if(file == NULL)
+    {
+        perror("Fail to open");
+    }
+    int nLen = 0;
+    fseek(file, 0, SEEK_END);
+    nLen = ftell(file);
+    rewind(file);
+    char* buffer = (char*)malloc(sizeof(char)*nLen + 1);
+    nLen = fread(buffer, sizeof(char), nLen, file);
+    buffer[nLen] = '\0';
+    printf("%s\n", buffer);
+    fclose(file);
+    free(buffer);
+    return 0;
 }
 
 static void call(const int choice)
@@ -83,25 +99,19 @@ static int menu()
 
 static void encrypt_file()
 {
-
 }
 static void decrypt_file()
 {
-    
 }
 static void store_login_credential()
 {
-
 }
 static void retrive_login_credential()
 {
-    
 }
 static void compress_file()
 {
-
 }
 static void extract_file()
 {
-    
 }

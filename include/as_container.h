@@ -4,28 +4,25 @@
 #include "as_general.h"
 #include "as_errno.h"
 
-#define NODE(T) \
-    NODE_##T
+typedef struct listnode_t
+{
+    void *data;
+    struct listnode_t *pLast;
+    struct listnode_t *pNext;
+} lnode_t;
 
-#define LINKED_LIST(T) \
-    LINKED_LIST_##T
+typedef struct list_t
+{
+    uint64_t size;
+    uint32_t element_size;
+    lnode_t *head;
+} list_t;
 
-#define DEFINE_NODE(T)          \
-    typedef struct NODE_##T     \
-    {                           \
-        T data;                 \
-        struct NODE_##T *pLast; \
-        struct NODE_##T *pNext; \
-    } NODE_##T
-
-#define DEFINE_LINKED_LIST(T)      \
-    typedef struct LINKED_LIST_##T \
-    {                              \
-        uint64_t length;           \
-        NODE_##T *pLast;           \
-        NODE_##T *pNext;           \
-    } LINKED_LIST_##T
-
-
+status_t list_Init(list_t* __list, uint32_t __elem_size);
+status_t list_PushBack(list_t* __list, const void* __data);
+status_t list_PushFront(list_t* __list, const void* __data);
+status_t list_Destroy(list_t* __list);
+status_t list_Insert(list_t* __list, const uint64_t index);
+status_t list_InsertWithCondition(list_t* __list, int(*func)(const lnode_t* __node));
 
 #endif
