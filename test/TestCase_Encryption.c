@@ -56,16 +56,28 @@ void Test_EncryptBuffer1()
     double src_sum = 0;
     double decrypted_sum = 0;
     double buffer[] = {1, 2, 3, 4};
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         src_sum += buffer[i];
     encrbuff_t encrypted;
     double *decrypted;
     encrypt_buff(&encrypted, buffer, sizeof(double) * 4);
     decrypt_buff((void **)&decrypted, &encrypted);
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         decrypted_sum += decrypted[i];
     assert(decrypted_sum == src_sum);
-    printf("Test Encrypt Buffer 1 PASS\n");
+    printf("Test Encrypt Buffer 1 PASS!\n");
+}
+
+void Test_EncryptBuffer2()
+{
+    char *buffer = "Good Morning!!!";
+    encrbuff_t encrypted;
+    char *decrypted;
+
+    encrypt_buff(&encrypted, buffer, strlen(buffer));
+    decrypt_buff((void **)&decrypted, &encrypted);
+    assert(!strcmp(buffer, decrypted));
+    printf("Test Encrypt Buffer 2 PASS!\n");
 }
 
 int main()
@@ -73,6 +85,8 @@ int main()
     Test_EncryptString1();
     Test_EncryptString2();
     Test_EncryptString3();
+    printf("\n");
     Test_EncryptBuffer1();
+    Test_EncryptBuffer2();
     return 0;
 }

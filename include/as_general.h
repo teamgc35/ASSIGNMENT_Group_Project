@@ -11,7 +11,7 @@ typedef uint64_t size_t;
 typedef float float32_t;
 typedef double float64_t;
 
-#define MAX_NAME_LENGTH 32
+#define MAX_PASSWD_LEN 31
 
 #define TITLE "<HD PROGRAM>"
 

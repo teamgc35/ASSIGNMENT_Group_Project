@@ -2,7 +2,9 @@
 #include "as_errno.h"
 #include "as_encrypt.h"
 
-#include <stdio.h>
+#include <stdio.h> /* fputs fgets fread fwrite fseek rewind perror printf */
+#include <stdlib.h> /* free malloc*/
+#include <string.h> /* strcmp */
 
 status_t Fn_encrypt_file(const char *password, FILE *src, FILE *out)
 {
@@ -15,7 +17,7 @@ status_t Fn_encrypt_file(const char *password, FILE *src, FILE *out)
     rv = encrypt_str(&encr_passwd, password);
     if (rv != 0)
         return STATUS_FAIL;
-    /* 2. Store the password in the first line in the out file */
+    /* 2. Store the password */
     fwrite(&(encr_passwd.nbytes), sizeof(size_t), 1, out);
     fputs(encr_passwd.buffer, out);
 
@@ -39,8 +41,6 @@ status_t Fn_encrypt_file(const char *password, FILE *src, FILE *out)
         return STATUS_FAIL;
     /* 3.4. Write to file */
     fwrite(encr_file.buffer, sizeof(char), nLen, out);
-    fclose(src);
-    fclose(out);
     free(buffer);
     return STATUS_OK;
 }
@@ -61,7 +61,7 @@ status_t Fn_decrypt_file(const char *password, FILE *src, FILE *out)
     if (strcmp(decrypted_passwd, password))
     {
         fprintf(stderr, "Wrong password!\n");
-        exit(-1);
+        return ERR_CREDENTIAL;
     }
     printf("Valid password! Begin to decrypt...\n");
     fread(&(encr_buffer.nbytes), sizeof(size_t), 1, src);
@@ -69,6 +69,6 @@ status_t Fn_decrypt_file(const char *password, FILE *src, FILE *out)
     fread(encr_buff, 1, encr_buffer.nbytes, src);
     encr_buffer.buffer = encr_buff;
     rv = decrypt_buff((void**)&decrypted_buffer, &encr_buffer);
-    printf("%s\n", decrypted_buffer);
-
+    fwrite(decrypted_buffer, sizeof(char), encr_buffer.nbytes, out);
+    return STATUS_OK;
 }

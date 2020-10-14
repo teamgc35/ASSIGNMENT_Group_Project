@@ -1,7 +1,7 @@
 #include "as_encrypt.h"
 #include "as_errno.h"
-#include <string.h>
-#include <stdlib.h>
+#include <string.h> /* strlen */
+#include <stdlib.h> /* malloc srand rand */
 
 #ifndef NDEBUG
 #include <assert.h>
@@ -19,7 +19,10 @@ status_t encrypt_str(encrbuff_t *__res, const char *__src)
     size_t opt_rema = (__res->nbytes - 1) % BATCH_SIZE;
     register size_t i;
     register char rand_num;
-    // Pack 4 bytes together.
+    /*  
+        Pack 4 bytes together. In fact I should pack 256 bytes together, because I exec shell cmd
+        on Ed terminal, it suggests that the server support avx2.
+    */
     for (i = 0; i < opt_time; i++)
     {
         rand_num = (char)rand();
@@ -41,18 +44,29 @@ status_t decrypt_str(char **__res, const encrbuff_t *__src)
 {
     if (__src == NULL)
         return ERR_NULLPTR;
+    /* allocate buffer for result */
     char *result_buffer = (char *)malloc(__src->nbytes);
     char *src_buffer = __src->buffer;
+    /* set last byte to 0, which will terminate the cstring */
     result_buffer[__src->nbytes - 1] = '\0';
     srand(__src->nbytes);
+    /* compute how many operation time is required */
     size_t opt_time = (__src->nbytes - 1) / BATCH_SIZE;
+    /* compute the remainder */
     size_t opt_rema = (__src->nbytes - 1) % BATCH_SIZE;
     register size_t i;
     register char rand_num;
-    // Pack 4 bytes together.
+    /*  
+        Pack 4 bytes together. In fact I should pack 256 bytes together, because I exec shell cmd
+        on Ed terminal, it suggests that the server support avx2.
+    */
     for (i = 0; i < opt_time; i++)
     {
         rand_num = (char)rand();
+        /*  
+            Unroll the loop, which might looks wired. Idealy, they should be casted into double, pack
+            4 double data together, and use SMID instruction in <immintrin.h>, to achieve better performance.
+        */
         result_buffer[0] = src_buffer[0] - rand_num;
         result_buffer[1] = src_buffer[1] - rand_num;
         result_buffer[2] = src_buffer[2] - rand_num;
@@ -60,6 +74,7 @@ status_t decrypt_str(char **__res, const encrbuff_t *__src)
         result_buffer += BATCH_SIZE;
         src_buffer += BATCH_SIZE;
     }
+    /* Generate the rand number for the remaind bytes */
     rand_num = (char)rand();
     for (i = 0; i < opt_rema; i++)
         result_buffer[i] = src_buffer[i] - rand_num;
@@ -83,9 +98,9 @@ status_t encrypt_buff(encrbuff_t *__res, const void *buffer, const size_t nbytes
     for (i = 0; i < opt_time; i++)
         result_buffer[i] = ((int *)buffer)[i] + rand();
     rand_num = rand();
-    for (; i < opt_rema + opt_time; i++)
-        result_buffer[i] = ((char *)buffer)[i] + (char)rand_num;
-    __res->buffer = (char*)result_buffer;
+    for (i = opt_time * BATCH_SIZE; i < (opt_time * BATCH_SIZE + opt_rema); i++)
+        ((char *)result_buffer)[i] = ((char *)buffer)[i] + (char)rand_num;
+    __res->buffer = (char *)result_buffer;
     return STATUS_OK;
 }
 
@@ -103,8 +118,8 @@ status_t decrypt_buff(void **__res, const encrbuff_t *__src)
     for (i = 0; i < opt_time; i++)
         result_buffer[i] = ((int *)(__src->buffer))[i] - rand();
     rand_num = rand();
-    for (; i < opt_rema + opt_time; i++)
-        result_buffer[i] = ((char *)(__src->buffer))[i] - (char)rand_num;
+    for (i = opt_time * BATCH_SIZE; i < (opt_time * BATCH_SIZE + opt_rema); i++)
+        ((char *)result_buffer)[i] = ((char *)(__src->buffer))[i] - (char)rand_num;
     *__res = result_buffer;
     return STATUS_OK;
 }
