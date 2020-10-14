@@ -12,7 +12,7 @@ void list_Init(list_t *__list, const uint32_t __elem_size)
     __list->head = NULL;
 }
 
-lnode_t *list_Get(list_t *__list, const uint64_t __index)
+lnode_t *list_Get(const list_t *__list, const uint64_t __index)
 {
     if (__index > __list->size)
     {

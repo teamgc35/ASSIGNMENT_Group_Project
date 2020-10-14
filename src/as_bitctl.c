@@ -1,5 +1,6 @@
 #include "as_bitctl.h"
 #include "as_errno.h"
+#include <string.h>
 
 status_t as_bitset(void *buffer, const unsigned nbytes, const char *bits)
 {

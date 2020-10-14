@@ -10,7 +10,7 @@ int has_sarg(int argc, const char **argv, const char sarg)
     buffer[0] = '-';
     buffer[1] = sarg;
     buffer[2] = '\0';
-    for (i = 1; i < argc; i += 2)
+    for (i = 1; i < argc-1; i += 2)
     {
         if (!strcmp(argv[i], buffer))
             /* if the sarg exist, return the value index */
@@ -25,7 +25,7 @@ int has_larg(int argc, const char **argv, const char *larg)
     buffer[0] = '-';
     buffer[1] = '-';
     strcpy(buffer + 2, larg);
-    for (i = 1; i < argc; i += 2)
+    for (i = 1; i < argc-1; i += 2)
     {
         if (!strcmp(argv[i], buffer))
             return i + 1;
