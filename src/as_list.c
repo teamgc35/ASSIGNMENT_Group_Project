@@ -1,4 +1,5 @@
 #include "as_list.h"
+#include "as_array.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -11,7 +12,7 @@ void list_Init(list_t *__list, const uint32_t __elem_size)
     __list->head = NULL;
 }
 
-void *list_Get(list_t *__list, const uint64_t __index)
+lnode_t *list_Get(list_t *__list, const uint64_t __index)
 {
     if (__index > __list->size)
     {
@@ -43,11 +44,13 @@ status_t list_PushBack(list_t *__list, const void *__data)
         return STATUS_OK;
     }
     lnode_t *node = __list->head;
-    while (node->pNext != node && node->pNext != NULL)
+    register uint64_t i;
+    while (node->pNext != __list->head && node->pNext != NULL)
         node = node->pNext;
     node->pNext = lnode_init(__data, __list->element_size);
     __list->head->pLast = node->pNext;
     node->pNext->pLast = node;
+    node->pNext->pNext = __list->head;
     __list->size += 1;
     return STATUS_OK;
 }
@@ -94,7 +97,7 @@ status_t list_Destroy(list_t *__list)
         free(node);
         return STATUS_OK;
     }
-    for (i = 0; i < (__list->size-1); i++)
+    for (i = 0; i < (__list->size - 1); i++)
     {
         free(node);
         node = pNext;
@@ -133,8 +136,15 @@ status_t list_Insert(list_t *__list, const uint64_t __index, void *__data)
     return STATUS_OK;
 }
 
-status_t list_InsertWithCondition(list_t *__list, int (*func)(const lnode_t *__node))
+void list_Finalize(const list_t *__list, array_t *__dest)
 {
+    array_Init(__dest, __list->size, __list->element_size, NULL);
+    register uint64_t i;
+    lnode_t *node;
+    for (i = 0; i < __list->size; i++){
+        node = list_Get(__list, i);
+        array_PushBack(__dest, node->data);
+    }
 }
 /*
     Static Functions
@@ -145,4 +155,5 @@ static lnode_t *lnode_init(const void *data, const uint32_t elem_size)
     lnode_t *_node = (lnode_t *)malloc(sizeof(lnode_t));
     _node->data = malloc(elem_size);
     memcpy(_node->data, data, elem_size);
+    return _node;
 }

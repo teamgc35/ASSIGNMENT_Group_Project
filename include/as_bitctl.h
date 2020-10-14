@@ -2,6 +2,11 @@
 #define __AS_BITCTL_H__
 #include "as_general.h"
 
+#define BITSET(byte, n) \
+    byte |= 1UL << n
 
-void as_bitset(void *buffer, const size_t nbytes, const unsigned char nbit, const char* bits);
+#define BITCLEAR(byte, n) \
+    byte &= ~(1UL << n)
+
+status_t as_bitset(void *buffer, const unsigned nbytes, const char *bits);
 #endif

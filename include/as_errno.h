@@ -10,6 +10,8 @@
 #define ERR_NULLPTR (BASE_ERR + 100)
 #define ERR_RANGE (BASE_ERR + 101)
 #define ERR_CREDENTIAL (BASE_ERR + 102)
+#define ERR_PARAMS (BASE_ERR + 103)
+#define ERR_ARRFULL (BASE_ERR + 104)
 
 static status_t as_errno;
 

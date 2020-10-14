@@ -6,6 +6,7 @@
 #include "as_functional.h"
 #include "as_errno.h"
 #include "as_argparse.h"
+#include "as_bitctl.h"
 
 /**
  * @description: Display menu, and get user choice
@@ -52,9 +53,9 @@ int main(int argc, const char *argv[])
         /* Perform encryption funciton */
         if (!strcmp(argv[1], "encrypt"))
         {
-            const char *src_path = parse_argv(argc, argv+1, "src", 's');
-            const char *out_path = parse_argv(argc, argv+1, "out", 'o');
-            const char *passwd = parse_argv(argc, argv+1, "passwd", 'p');
+            const char *src_path = parse_argv(argc, argv + 1, "src", 's');
+            const char *out_path = parse_argv(argc, argv + 1, "out", 'o');
+            const char *passwd = parse_argv(argc, argv + 1, "passwd", 'p');
             /* If any of those argv is NULL display usage to the user */
             if (!src_path || !out_path || !passwd)
             {
@@ -87,9 +88,9 @@ int main(int argc, const char *argv[])
         }
         if (!strcmp(argv[1], "decrypt"))
         {
-            const char *src_path = parse_argv(argc, argv+1, "src", 's');
-            const char *out_path = parse_argv(argc, argv+1, "out", 'o');
-            const char *passwd = parse_argv(argc, argv+1, "passwd", 'p');
+            const char *src_path = parse_argv(argc, argv + 1, "src", 's');
+            const char *out_path = parse_argv(argc, argv + 1, "out", 'o');
+            const char *passwd = parse_argv(argc, argv + 1, "passwd", 'p');
             /* If any of those argv is NULL display usage to the user */
             if (!src_path || !out_path || !passwd)
             {
@@ -178,20 +179,22 @@ static void encrypt_file()
     FILE *Fp_in = fopen(path, "rb");
     while (Fp_in == NULL)
     {
-        perror("Failed to open src file. Please try again: ");
+        perror("Failed to open src file. ");
+        printf("Please try again: ");
         scanf("%s", path);
         Fp_in = fopen(path, "rb");
     }
     /* clear the buffer */
     memset(path, '\0', 256);
-    scanf("%s", path);
 
     /* Get output file path and open it */
     printf("Please enter the output path: ");
+    scanf("%s", path);
     FILE *Fp_out = fopen(path, "wb");
     while (Fp_out == NULL)
     {
-        perror("Failed to open output file. Please try again: ");
+        perror("Failed to open output file. ");
+        printf("Please try again: ");
         scanf("%s", path);
         Fp_out = fopen(path, "rb");
     }
@@ -202,7 +205,7 @@ static void encrypt_file()
     while (strlen(password) > MAX_PASSWD_LEN)
     {
         memset(password, 0, 64);
-        perror("Password too long. Please try again: ");
+        fprintf(stderr, "Password too long. Please try again: ");
         scanf("%s", password);
     }
     /* Encrypt the file */
@@ -226,17 +229,17 @@ static void decrypt_file()
     FILE *Fp_in = fopen(path, "rb");
     while (Fp_in == NULL)
     {
-        perror("Failed to open src file. Please try again: ");
+        fprintf(stderr, "Failed to open src file. Please try again: ");
         scanf("%s", path);
         Fp_in = fopen(path, "rb");
     }
-    printf("Please enter the output path: ");
     memset(path, '\0', 256);
+    printf("Please enter the output path: ");
     scanf("%s", path);
     FILE *Fp_out = fopen(path, "wb");
     while (Fp_out == NULL)
     {
-        perror("Failed to open output file. Please try again: ");
+        fprintf(stderr, "Failed to open output file. Please try again: ");
         scanf("%s", path);
         Fp_out = fopen(path, "rb");
     }
@@ -246,14 +249,14 @@ static void decrypt_file()
     while (strlen(password) > MAX_PASSWD_LEN)
     {
         memset(password, 0, 64);
-        perror("Password too long. Please try again: ");
+        fprintf(stderr, "Password too long. Please try again: ");
         scanf("%s", password);
     }
     rv = Fn_decrypt_file(password, Fp_in, Fp_out);
     /* If password does not match, ask the user to re-enter the password */
     while (rv == ERR_CREDENTIAL)
     {
-        perror("Wrong Password! Please try again: ");
+        fprintf(stderr, "Wrong Password! Please try again: ");
         scanf("%s", password);
         rv = Fn_decrypt_file(password, Fp_in, Fp_out);
     }
@@ -271,8 +274,9 @@ static void extract_file()
 }
 static void cli_help()
 {
-    printf("usage: %s [--help | -h]\n"
-           "\t\t  <command> [<args>]\n"
+    printf("usage: %s\n"
+           "\t[--help | -h]\n"
+           "\t<command> [<args>]\n"
            "There are four commands provided:\n"
            "  encrypt\tEncrypt a file object\n"
            "    args: [--src | -s <Source File Path>] [--out | -o <Output File Path>] [--passwd | -p <password>]\n"
@@ -281,6 +285,6 @@ static void cli_help()
            "  compress\tCompress a file object\n"
            "    args: [--src | -s <Source File Path>] [--out | -o <Output File Path>]\n"
            "  extact\tExtract Compress data\n"
-           "    args: [--src | -s <Source File Path>] [--out | -o <Output File Path>]\n"
+           "    args: [--src | -s <Source File Path>] [--out | -o <Output File Path>]\n",
            "hd_program");
 }
