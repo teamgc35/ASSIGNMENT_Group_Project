@@ -53,9 +53,9 @@ int main(int argc, const char *argv[])
         /* Perform encryption funciton */
         if (!strcmp(argv[1], "encrypt"))
         {
-            const char *src_path = parse_argv(argc, argv + 1, "src", 's');
-            const char *out_path = parse_argv(argc, argv + 1, "out", 'o');
-            const char *passwd = parse_argv(argc, argv + 1, "passwd", 'p');
+            const char *src_path = parse_argv(argc-1, argv + 1, "src", 's');
+            const char *out_path = parse_argv(argc-1, argv + 1, "out", 'o');
+            const char *passwd = parse_argv(argc-1, argv + 1, "passwd", 'p');
             /* If any of those argv is NULL display usage to the user */
             if (!src_path || !out_path || !passwd)
             {
