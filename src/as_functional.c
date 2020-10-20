@@ -6,6 +6,7 @@
 #include <stdlib.h> /* free malloc*/
 #include <string.h> /* strcmp */
 
+
 status_t Fn_encrypt_file(const char *password, FILE *src, FILE *out)
 {
     /* 1. Encrypt the password */

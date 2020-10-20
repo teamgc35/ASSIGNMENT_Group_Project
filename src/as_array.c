@@ -29,6 +29,7 @@ status_t array_PushBack(array_t *arr, const void *buffer)
     arr->size += 1;
     return STATUS_OK;
 }
+
 void *array_Get(const array_t *arr, const uint64_t index)
 {
     if (index >= arr->size)

@@ -85,21 +85,39 @@ status_t decrypt_str(char **__res, const encrbuff_t *__src)
 
 status_t encrypt_buff(encrbuff_t *__res, const void *buffer, const size_t nbytes)
 {
+    /* 
+        To encrypt a buffer, 
+            1. The buffer length
+            2. buffer address (LPVOID)
+    */
+
     if (__res == NULL)
         return ERR_NULLPTR;
     __res->nbytes = nbytes;
+    /* allocate memory for the result buffer */
     int *result_buffer = (int *)malloc(nbytes);
+
+    /* one of the SIMD instruction - avx2 which is support in the Ed Host computer, when I execute `cat /proc/cpuinfo`  */
     size_t opt_time = nbytes / BATCH_SIZE;
     size_t opt_rema = nbytes % BATCH_SIZE;
 
+    /* each time the random number it generates will be the same as long as the compiler and random seed is the same */
+    /* hint the compiler to store i in a register. cuz i is change very frequently */
     register size_t i;
-    register int rand_num;
+    int rand_num;
+    /* use nbytes - buffer length as the rand seed */
     srand(nbytes);
+    /* Doing the encryption */
     for (i = 0; i < opt_time; i++)
         result_buffer[i] = ((int *)buffer)[i] + rand();
+    /* Encryt remainder */
     rand_num = rand();
     for (i = opt_time * BATCH_SIZE; i < (opt_time * BATCH_SIZE + opt_rema); i++)
         ((char *)result_buffer)[i] = ((char *)buffer)[i] + (char)rand_num;
+    /* 
+        assign the result buffer to the result which is a pointer of encrbuff_t (define in as_encrypt.h), it record the bytes length of the buffer
+        and holds a char POINTER to the result buffer, instead of exact value of the result buffer, which tackle the copying and improve performance.
+    */
     __res->buffer = (char *)result_buffer;
     return STATUS_OK;
 }
