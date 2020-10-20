@@ -244,6 +244,7 @@ static void decrypt_file()
     while (Fp_out == NULL)
     {
         fprintf(stderr, "Failed to open output file. Please try again: ");
+        memset(path,0,256);
         scanf("%s", path);
         Fp_out = fopen(path, "rb");
     }
@@ -254,6 +255,8 @@ static void decrypt_file()
     {
         memset(password, 0, 64);
         fprintf(stderr, "Password too long. Please try again: ");
+        // Move file pointer to the beginning
+        fseek(Fp_in, 0, SEEK_SET);
         scanf("%s", password);
     }
     rv = Fn_decrypt_file(password, Fp_in, Fp_out);
@@ -261,7 +264,10 @@ static void decrypt_file()
     while (rv == ERR_CREDENTIAL)
     {
         fprintf(stderr, "Wrong Password! Please try again: ");
+        memset(password, 0, 64);
         scanf("%s", password);
+        // Move file pointer to the beginning
+        fseek(Fp_in, 0, SEEK_SET);
         rv = Fn_decrypt_file(password, Fp_in, Fp_out);
     }
     fclose(Fp_in);
