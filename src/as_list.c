@@ -141,7 +141,7 @@ void list_Finalize(const list_t *__list, array_t *__dest)
     array_Init(__dest, __list->size, __list->element_size, NULL);
     register uint64_t i;
     lnode_t *node;
-    for (i = 0; i < __list->size; i++){
+    for (i = 0; i < __list->size; i++) {
         node = list_Get(__list, i);
         array_PushBack(__dest, node->data);
     }

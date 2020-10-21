@@ -75,3 +75,12 @@ status_t Fn_decrypt_file(const char *password, FILE *src, FILE *out)
     fwrite(decrypted_buffer, sizeof(char), encr_buffer.nbytes, out);
     return STATUS_OK;
 }
+status_t Fn_compress_file(FILE *src, FILE *out)
+{
+
+}
+
+status_t Fn_extract_file(FILE *src, FILE* out)
+{
+
+}

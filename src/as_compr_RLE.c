@@ -1,4 +1,5 @@
-#include "as_compress.h"
+#include "as_compr_RLE.h"
+
 #include "as_list.h"
 #include "as_array.h"
 
@@ -17,16 +18,7 @@ typedef struct rle_node_t
     uint32_t times;
 } RLEnode_t;
 
-int FindCondition(const void *elem, const void *desire)
-{
-    char *e = (char *)elem;
-    char *d = (char *)desire;
-    if (*e == *d)
-        return 1;
-    return 0;
-}
-
-void compr_RLE(array_t *__dest, const char *__src)
+void compr_RLE(RLE_compr_t *__dest, const char *__src)
 {
     /* Use continuous array for better scan performance */
     list_t list;
@@ -50,6 +42,11 @@ void compr_RLE(array_t *__dest, const char *__src)
             tmp_node.times = 1;
         }
     }
-    list_Finalize(&list, __dest);
+    __dest->total_bytes = nLen;
+    list_Finalize(&list, &(__dest->compr_buff) );
     list_Destroy(&list);
+}
+
+void extract_RLE(void *__dest, const array_t *__src)
+{
 }
