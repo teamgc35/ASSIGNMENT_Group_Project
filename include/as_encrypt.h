@@ -2,12 +2,13 @@
 #define __AS_ENRYPT_H__
 #include "as_general.h"
 
+/* How many bytes to pack as a batch, ideally it should be 256.(SIMD) */
 #define BATCH_SIZE 4
 
 typedef struct encrypted_buffer
 {
-    size_t nbytes;
-    char *buffer;
+    size_t nbytes; /* how many bytes of the encrypted buffer */
+    char *buffer; /* encrypted buffer pointer */
 } encrbuff_t;
 
 /**
