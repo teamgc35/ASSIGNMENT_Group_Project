@@ -10,9 +10,13 @@ typedef unsigned long uint64_t;
 typedef uint64_t size_t;
 typedef float float32_t;
 typedef double float64_t;
+typedef unsigned char byte;
+typedef char sbyte; /* signed byte */
 
 #define MAX_PASSWD_LEN 31
 #define MAX_NAME_LEN 31
+#define MAX_MAP_HEAD 128
+
 
 #define TITLE "<HD PROGRAM>"
 

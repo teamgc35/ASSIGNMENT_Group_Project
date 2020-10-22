@@ -26,6 +26,9 @@ target_link_libraries(TestCase_Array assignment)
 add_executable(TestCase_RLE ${PROJECT_SOURCE_DIR}/test/TestCase_RLE.c)
 target_link_libraries(TestCase_RLE assignment)
 
+add_executable(TestCase_Hash ${PROJECT_SOURCE_DIR}/test/TestCase_Hash.c)
+target_link_libraries(TestCase_Hash assignment)
+
 add_executable(payroll payroll.c)
 target_link_libraries(payroll assignment)
 

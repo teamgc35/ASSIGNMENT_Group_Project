@@ -2,14 +2,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-int menu();
-void call(int choice);
-void add_record();
-void display_all();
-void search_record();
+static int menu();
+static void call(int choice);
+static void cli_help();
+static void add_record();
+static void display_all();
+static void search_record();
 
 int main(int argc, const char *argv[])
 {
+    if (argc == 1) {
+        printf("A payroll file must be specified.\n");
+        return 0;
+    }
     int choice;
     while (1)
     {
@@ -21,7 +26,7 @@ int main(int argc, const char *argv[])
     return 0;
 }
 
-int menu()
+static int menu()
 {
     int choice;
     printf("%s\n", "PAYROLL SYSTEM");
@@ -33,7 +38,7 @@ int menu()
     scanf("%d", &choice);
     return choice;
 }
-void call(int choice)
+static void call(int choice)
 {
     switch (choice)
     {

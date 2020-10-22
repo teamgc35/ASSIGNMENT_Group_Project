@@ -6,13 +6,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-static void scan_src();
-
-// 1. scan the input
-// 2. count how many time a field appears
-// 3. establish huffman tree
-// 4. encode
-
 void comprstr_RLE(RLE_compr_t *__dest, const char *__src)
 {
     /* Use continuous array for better scan performance */
