@@ -4,6 +4,7 @@
 #include "as_array.h"
 
 #include <string.h>
+#include <stdlib.h>
 
 static void scan_src();
 
@@ -12,13 +13,7 @@ static void scan_src();
 // 3. establish huffman tree
 // 4. encode
 
-typedef struct rle_node_t
-{
-    char ch;
-    uint32_t times;
-} RLEnode_t;
-
-void compr_RLE(RLE_compr_t *__dest, const char *__src)
+void comprstr_RLE(RLE_compr_t *__dest, const char *__src)
 {
     /* Use continuous array for better scan performance */
     list_t list;
@@ -42,11 +37,31 @@ void compr_RLE(RLE_compr_t *__dest, const char *__src)
             tmp_node.times = 1;
         }
     }
-    __dest->total_bytes = nLen;
-    list_Finalize(&list, &(__dest->compr_buff) );
+    list_PushBack(&list, &tmp_node);
+    __dest->nbytes = nLen;
+    list_Finalize(&list, &(__dest->compr_buff));
     list_Destroy(&list);
 }
 
-void extract_RLE(void *__dest, const array_t *__src)
+void extrastr_RLE(char **__dest, const RLE_compr_t *__src)
 {
+    char *result = (char *)malloc(__src->nbytes+1);
+    result[__src->nbytes] = '\0';
+    uint64_t i = 0;
+    uint64_t j;
+    uint32_t k;
+    RLEnode_t *node;
+    while(i<__src->nbytes)
+    {
+        for (j = 0; j < __src->compr_buff.size; j++)
+        {
+            node = (RLEnode_t *)array_Get(&(__src->compr_buff), j);
+            for(k = 0; k < node->times;k ++)
+            {
+                result[i] = node->ch;
+                i++;
+            }
+        }
+    }
+    *__dest = result;
 }

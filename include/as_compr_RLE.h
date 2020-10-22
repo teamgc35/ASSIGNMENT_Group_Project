@@ -7,16 +7,23 @@
 
 typedef struct RLE_compressed
 {
-    uint64_t total_bytes;
-    array_t *compr_buff;
+    uint64_t nbytes;
+    array_t compr_buff;
 
 } RLE_compr_t;
-void compr_HFM(char **__dest, const char *__src);
 
-void extra_HFM(char **__dest, const char *__src);
+typedef struct rle_node_t
+{
+    char ch;
+    uint32_t times;
+} __attribute__((packed)) RLEnode_t;
 
-void compr_RLE(RLE_compr_t *__dest, const char *__src);
+void comprstr_RLE(RLE_compr_t *__dest, const char *__src);
 
-void extra_RLE(char **__dest, const array_t *__src);
+void extrastr_RLE(char **__dest, const RLE_compr_t *__src);
+
+void comprbuff_RLE(RLE_compr_t **__dest, const void *__src, const uint64_t nbytes);
+
+void extrabuff_RLE(void **result, const RLE_compr_t *__src);
 
 #endif

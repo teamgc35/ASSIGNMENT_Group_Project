@@ -23,5 +23,11 @@ target_link_libraries(TestCase_LinkedList assignment)
 add_executable(TestCase_Array ${PROJECT_SOURCE_DIR}/test/TestCase_Array.c)
 target_link_libraries(TestCase_Array assignment)
 
-add_executable(hd_program main.c)
+add_executable(TestCase_RLE ${PROJECT_SOURCE_DIR}/test/TestCase_RLE.c)
+target_link_libraries(TestCase_RLE assignment)
+
+add_executable(payroll payroll.c)
+target_link_libraries(payroll assignment)
+
+add_executable(hd_program hd_program.c)
 target_link_libraries(hd_program assignment)
