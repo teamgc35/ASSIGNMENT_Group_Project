@@ -11,6 +11,10 @@
 #define MAX_PHONE_LEN 15
 #define MAX_EMAIL_LEN 63
 
+#define PR_UNINIT 0
+#define PR_ACCESS 1
+#define PR_DESTROY -1
+
 enum rank {
     _STAFF,
     _MANAGER,
@@ -27,17 +31,21 @@ typedef struct payroll_record {
     float pay_rate;
 } record_t;
 
+// void rec_Init(const char* fname, const char* lname, const char* phone, const char* email, const enum rank rank, );
+
 typedef struct payroll_header {
     char pr_fname[MAX_PRNAME_LEN+1]; /* payroll filename */
     char password[32];
-    int auth;
+    int status;
     uint64_t size;
     uint64_t current_id;
     list_t records;
 } pr_header_t;
 
 status_t pr_Init(pr_header_t *__h, const char* name, const char* password);
+void pr_Destroy(pr_header_t *__h);
 status_t pr_Load(pr_header_t *__h, const char* filename, const char* password);
+status_t pr_Dump(pr_header_t *__h);
 status_t pr_Add(pr_header_t *__h, const record_t *record);
 uint64_t pr_Find(pr_header_t *__h, record_t **__res, const char* fname, const char* lname);
 uint64_t pr_Findfn(pr_header_t *__h, record_t **__res, const char* fname);

@@ -13,8 +13,7 @@ void Test_CreateList1()
     list_Init(&list1, 8);
     assert(list1.size == 0);
     assert(list1.element_size == 8);
-    rv = list_Destroy(&list1);
-    assert(rv == STATUS_OK);
+    list_Destroy(&list1);
     printf("Create List 1 PASS.\n");
 }
 
@@ -31,9 +30,51 @@ void Test_PushBack1()
     lnode_t* node = list_Get(&list, 0);
     assert(node);
     assert(*((int*)(node->data)) == data);
-    rv = list_Destroy(&list);
-    assert(rv == STATUS_OK);
+    list_Destroy(&list);
     printf("Push Back 1 PASS.\n");
+}
+
+void Test_PushFront1()
+{
+    list_t list;
+    list_Init(&list, 4);
+    int data = 100;
+    assert(list.size == 0);
+    assert(list.element_size == 4);
+    rv = list_PushFront(&list, &data);
+    assert(rv == STATUS_OK);
+    assert(list.size == 1);
+    lnode_t* node = list_Get(&list, 0);
+    assert(node);
+    assert(*((int*)(node->data)) == data);
+    list_Destroy(&list);
+    printf("Push Front 1 PASS.\n");
+}
+
+void Test_PushFront2()
+{
+    list_t list;
+    list_Init(&list, 4);
+    int data = 100;
+    int data2 = 101;
+    assert(list.size == 0);
+    assert(list.element_size == 4);
+    rv = list_PushBack(&list, &data);
+    assert(rv == STATUS_OK);
+    assert(list.size == 1);
+    lnode_t* node = list_Get(&list, 0);
+    assert(node);
+    assert(*((int*)(node->data)) == data);
+
+    rv = list_PushFront(&list, &data2);
+    assert(rv == STATUS_OK);
+    assert(list.size == 2);
+    node = list_Get(&list, 0);
+    assert(node);
+    assert(*((int*)(node->data)) == data2);
+
+    list_Destroy(&list);
+    printf("Push Front 2 PASS.\n");
 }
 
 void Test_PushBack2()
@@ -66,9 +107,27 @@ void Test_PushBack2()
     assert(get_data);
     assert( *((int*)(get_data->data)) == data);
 
-    rv = list_Destroy(&list);
-    assert(rv == STATUS_OK);
+    list_Destroy(&list);
     printf("Push Back 2 PASS!.\n");
+}
+
+void Test_Get()
+{
+    list_t list;
+    list_Init(&list, 8);
+    double data = 3.1415;
+    double data2 = 123;
+    list_PushBack(&list, &data);
+    list_PushBack(&list, &data);
+    list_PushBack(&list, &data);
+    list_PushBack(&list, &data2);
+    assert(list.size == 4);
+    assert(*((double*)(list_Get(&list, 0)->data)) == data);
+    assert(*((double*)(list_Get(&list, 1)->data)) == data);
+    assert(*((double*)(list_Get(&list, 2)->data)) == data);
+    assert(*((double*)(list_Get(&list, 3)->data)) == data2);
+    list_Destroy(&list);
+    printf("Get PASS!\n");
 }
 
 void Test_Finalize()
@@ -98,6 +157,9 @@ int main()
     Test_CreateList1();
     Test_PushBack1();
     Test_PushBack2();
+    Test_PushFront1();
+    Test_PushFront2();
+    Test_Get();
     Test_Finalize();
     return 0;
 }

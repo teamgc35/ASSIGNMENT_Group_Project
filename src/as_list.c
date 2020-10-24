@@ -14,12 +14,12 @@ void list_Init(list_t *__list, const uint64_t __elem_size)
 
 lnode_t *list_Get(const list_t *__list, const uint64_t __index)
 {
-    if (__index > __list->size)
+    if (__index >= __list->size)
     {
-        as_seterr(ERR_RANGE, "out of range.");
+        _DEBUGF("Out of range (%d).", ERR_RANGE);
         return NULL;
     }
-    if (__index == __list->size)
+    if (__index == __list->size-1)
         return __list->head->pLast;
     register uint64_t i;
     lnode_t *node = __list->head;
@@ -28,12 +28,17 @@ lnode_t *list_Get(const list_t *__list, const uint64_t __index)
     return node;
 }
 
+void* list_GetData(const list_t* __list, const uint64_t __index)
+{
+    return list_Get(__list, __index)->data;
+}
+
 status_t list_PushBack(list_t *__list, const void *__data)
 {
     // TODO: Duo Linked List PushBack can be optimize.
     if (__list == NULL)
     {
-        as_seterr(ERR_NULLPTR, "list operation does not accept NULL list.");
+        _DEBUG("list operation does not accept NULL list.");
         return ERR_NULLPTR;
     }
     if (__list->head == NULL)
@@ -83,19 +88,19 @@ status_t list_PushFront(list_t *__list, const void *__data)
     return STATUS_OK;
 }
 
-status_t list_Destroy(list_t *__list)
+void list_Destroy(list_t *__list)
 {
     if (__list == NULL)
-        return ERR_NULLPTR;
+        return;
     if (__list->size == 0)
-        return STATUS_OK;
+        return;
     register uint64_t i;
     lnode_t *node = __list->head;
     lnode_t *pNext = node->pNext;
     if (__list->size == 1)
     {
         free(node);
-        return STATUS_OK;
+        return;
     }
     for (i = 0; i < (__list->size - 1); i++)
     {
@@ -104,7 +109,6 @@ status_t list_Destroy(list_t *__list)
         pNext = node->pNext;
     }
     free(node);
-    return STATUS_OK;
 }
 
 status_t list_Insert(list_t *__list, const uint64_t __index, void *__data)
