@@ -15,11 +15,11 @@ typedef struct listnode_t
 typedef struct list_t
 {
     uint64_t size;
-    uint32_t element_size;
+    uint64_t element_size;
     lnode_t *head;
 } list_t;
 
-void list_Init(list_t* __list, const uint32_t __elem_size);
+void list_Init(list_t* __list, const uint64_t __elem_size);
 lnode_t* list_Get(const list_t* __list, const uint64_t __index);
 status_t list_PushBack(list_t* __list, const void* __data);
 status_t list_PushFront(list_t* __list, const void* __data);

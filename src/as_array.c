@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void array_Init(array_t *arr, const size_t capacity, const uint32_t elem_size, int (*FindCondition)(const void* elem, const void* desire))
+void array_Init(array_t *arr, const size_t capacity, const uint64_t elem_size, int (*FindCondition)(const void* elem, const void* desire))
 {
     arr->capacity = capacity;
     arr->size = 0;

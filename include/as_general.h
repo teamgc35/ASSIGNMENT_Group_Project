@@ -1,6 +1,16 @@
 #ifndef __GENERAL_H__
 #define __GENERAL_H__
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifndef NDEBUG
+#define _DEBUGF(fmt, ...) fprintf(stderr, "%s:%d in %s | " fmt "\n", __FILE__, __LINE__, __FUNCTION__ , __VA_ARGS__)
+#define _DEBUG(msg) fprintf(stderr, "%s:%d in %s | %s\n", __FILE__, __LINE__, __FUNCTION__, msg)
+#else 
+#define _DEBUG(msg)
+#endif
+
 typedef int status_t;
 
 typedef int int32_t;
@@ -14,7 +24,6 @@ typedef unsigned char byte;
 typedef char sbyte; /* signed byte */
 
 #define MAX_PASSWD_LEN 31
-#define MAX_NAME_LEN 31
 #define MAX_MAP_HEAD 128
 
 

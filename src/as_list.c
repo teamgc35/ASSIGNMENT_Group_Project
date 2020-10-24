@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-static lnode_t *lnode_init(const void *data, const uint32_t elem_size);
+static lnode_t *lnode_init(const void *data, const uint64_t elem_size);
 
-void list_Init(list_t *__list, const uint32_t __elem_size)
+void list_Init(list_t *__list, const uint64_t __elem_size)
 {
     __list->size = 0;
     __list->element_size = __elem_size;
@@ -30,6 +30,7 @@ lnode_t *list_Get(const list_t *__list, const uint64_t __index)
 
 status_t list_PushBack(list_t *__list, const void *__data)
 {
+    // TODO: Duo Linked List PushBack can be optimize.
     if (__list == NULL)
     {
         as_seterr(ERR_NULLPTR, "list operation does not accept NULL list.");
@@ -150,7 +151,7 @@ void list_Finalize(const list_t *__list, array_t *__dest)
     Static Functions
     Prevent Other obj to link it.
 */
-static lnode_t *lnode_init(const void *data, const uint32_t elem_size)
+static lnode_t *lnode_init(const void *data, const uint64_t elem_size)
 {
     lnode_t *_node = (lnode_t *)malloc(sizeof(lnode_t));
     _node->data = malloc(elem_size);
