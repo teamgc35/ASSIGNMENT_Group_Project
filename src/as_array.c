@@ -41,7 +41,7 @@ int64_t array_Find(const array_t* arr, const void* data)
 {
     if (arr->FindCondition == NULL)
         return -2;
-    register int64_t i;
+    register uint64_t i;
     for (i = 0; i < arr->size; i++)
     {
         if (arr->FindCondition(arr->data+arr->element_size*i, data))

@@ -114,16 +114,18 @@ status_t pr_Load(pr_header_t *__h, const char *filename, const char *password)
     fclose(Fp_pr);
     free(encrpwd.buffer);
     __h->auth = 1;
+    return STATUS_OK;
 }
 
 status_t pr_Add(pr_header_t *__h, const record_t *record)
 {
+    status_t rv;
+
     if (__h == NULL)
     {
         _DEBUG("Payroll Header is NULL.");
         return ERR_NULLPTR;
     }
-    status_t rv;
     /* ensure phone is correct format */
     if (!checkfmt_phone(record->phone))
     {
@@ -159,6 +161,7 @@ status_t pr_Add(pr_header_t *__h, const record_t *record)
 
 uint64_t pr_Find(pr_header_t *__h, record_t **__res, const char *fname, const char *lname)
 {
+    status_t rv;
     if (__h == NULL)
     {
         _DEBUG("Payroll Header is NULL.");
@@ -181,7 +184,6 @@ uint64_t pr_Find(pr_header_t *__h, record_t **__res, const char *fname, const ch
         _DEBUG("Invalid last name format.");
         return 0;
     }
-    register status_t rv;
     list_t find_list;
     array_t find_arr;
     list_Init(&find_list, sizeof(record_t));
@@ -197,7 +199,7 @@ uint64_t pr_Find(pr_header_t *__h, record_t **__res, const char *fname, const ch
         /* if firstname and lastname matches, we add it to find_list */
         if (!strcmp(tmp->first_name, fname) && !strcmp(tmp->last_name, lname))
         {
-            _DEBUGF("Matched Record index: %u", i);
+            _DEBUGF("Matched Record index: %lu", i);
             rv = list_PushBack(&find_list, tmp);
             if (rv != STATUS_OK)
                 _DEBUGF("Failed to PushBack Record (%d)", rv);
@@ -213,6 +215,7 @@ uint64_t pr_Find(pr_header_t *__h, record_t **__res, const char *fname, const ch
 
 uint64_t pr_Findfn(pr_header_t *__h, record_t **__res, const char *fname)
 {
+    status_t rv;
     if (__h == NULL)
     {
         _DEBUG("Payroll Header is NULL.");
@@ -230,7 +233,6 @@ uint64_t pr_Findfn(pr_header_t *__h, record_t **__res, const char *fname)
         _DEBUG("Invalid first name format.");
         return 0;
     }
-    register status_t rv;
     list_t find_list;
     array_t find_arr;
     list_Init(&find_list, sizeof(record_t));
@@ -246,7 +248,7 @@ uint64_t pr_Findfn(pr_header_t *__h, record_t **__res, const char *fname)
         /* if firstname and lastname matches, we add it to find_list */
         if (!strcmp(tmp->first_name, fname))
         {
-            _DEBUGF("Matched Record index: %u", i);
+            _DEBUGF("Matched Record index: %lu", i);
             rv = list_PushBack(&find_list, tmp);
             if (rv != STATUS_OK)
                 _DEBUGF("Failed to PushBack Record (%d)", rv);
@@ -262,6 +264,7 @@ uint64_t pr_Findfn(pr_header_t *__h, record_t **__res, const char *fname)
 
 uint64_t pr_Findln(pr_header_t *__h, record_t **__res, const char *lname)
 {
+    status_t rv;
     if (__h == NULL)
     {
         _DEBUG("Payroll Header is NULL.");
@@ -279,7 +282,6 @@ uint64_t pr_Findln(pr_header_t *__h, record_t **__res, const char *lname)
         _DEBUG("Invalid last name format.");
         return 0;
     }
-    register status_t rv;
     list_t find_list;
     array_t find_arr;
     list_Init(&find_list, sizeof(record_t));
@@ -295,7 +297,7 @@ uint64_t pr_Findln(pr_header_t *__h, record_t **__res, const char *lname)
         /* if firstname and lastname matches, we add it to find_list */
         if (!strcmp(tmp->last_name, lname))
         {
-            _DEBUGF("Matched Record index: %u", i);
+            _DEBUGF("Matched Record index: %lu", i);
             rv = list_PushBack(&find_list, tmp);
             if (rv != STATUS_OK)
                 _DEBUGF("Failed to PushBack Record (%d)", rv);
@@ -314,13 +316,13 @@ record_t *pr_Getby_ph(pr_header_t *__h, const char *phone)
     if (__h == NULL)
     {
         _DEBUG("Payroll Header is NULL.");
-        return ERR_NULLPTR;
+        return NULL;
     }
     /* Check pr_header_t is initialized or loaded. */
     if (__h->records.head == NULL)
     {
         _DEBUG("pr_header_t is neither initialized or loaded.");
-        return 0;
+        return NULL;
     }
     /* Check phone format */
     if (!checkfmt_phone(phone))
@@ -345,13 +347,13 @@ record_t *pr_Getby_em(pr_header_t *__h, const char *email)
     if (__h == NULL)
     {
         _DEBUG("Payroll Header is NULL.");
-        return ERR_NULLPTR;
+        return NULL;
     }
     /* Check pr_header_t is initialized or loaded. */
     if (__h->records.head == NULL)
     {
         _DEBUG("pr_header_t is neither initialized or loaded.");
-        return 0;
+        return NULL;
     }
     /* Check phone format */
     if (!checkfmt_email(email))

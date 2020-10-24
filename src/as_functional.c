@@ -63,24 +63,39 @@ status_t Fn_decrypt_file(const char *password, FILE *src, FILE *out)
         return ERR_CREDENTIAL;
     encr_passwd.buffer = file_passwd;
     rv = decrypt_str(&decrypted_passwd, &encr_passwd);
+    if (rv != STATUS_OK)
+    {
+        _DEBUGF("Failed to decrypt string (%d)", rv);
+        return rv;
+    }
     // ensure password match
     if (strcmp(decrypted_passwd, password))
+    {
+        _DEBUG("Password not match.");
         return ERR_CREDENTIAL;
+    }
     printf("Valid password! Begin to decrypt...\n");
     fread(&(encr_buffer.nbytes), sizeof(size_t), 1, src);
     char encr_buff[encr_buffer.nbytes];
     fread(encr_buff, 1, encr_buffer.nbytes, src);
     encr_buffer.buffer = encr_buff;
     rv = decrypt_buff((void **)&decrypted_buffer, &encr_buffer);
+    if(rv != STATUS_OK)
+    {
+        _DEBUGF("Failed to decrypt buffer (%d)", rv);
+        return rv;
+    }
     fwrite(decrypted_buffer, sizeof(char), encr_buffer.nbytes, out);
     return STATUS_OK;
 }
 status_t Fn_compress_file(FILE *src, FILE *out)
 {
 
+    return STATUS_OK;
 }
 
 status_t Fn_extract_file(FILE *src, FILE* out)
 {
 
+    return STATUS_OK;
 }

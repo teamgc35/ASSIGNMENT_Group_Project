@@ -45,7 +45,6 @@ status_t list_PushBack(list_t *__list, const void *__data)
         return STATUS_OK;
     }
     lnode_t *node = __list->head;
-    register uint64_t i;
     while (node->pNext != __list->head && node->pNext != NULL)
         node = node->pNext;
     node->pNext = lnode_init(__data, __list->element_size);

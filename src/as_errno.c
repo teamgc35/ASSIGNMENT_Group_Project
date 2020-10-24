@@ -6,6 +6,8 @@
 static char ERR_BUFF[256];
 static void flush_msg();
 
+static status_t as_errno;
+
 void as_seterr(status_t err_code, const char* msg)
 {
     as_errno = err_code;
