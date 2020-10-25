@@ -22,8 +22,8 @@ void comprstr_RLE(RLE_compr_t *__dest, const char *__src);
 
 void extrastr_RLE(char **__dest, const RLE_compr_t *__src);
 
-void comprbuff_RLE(RLE_compr_t **__dest, const void *__src, const uint64_t nbytes);
+void comprbuff_RLE(RLE_compr_t *__dest, const void *__src, const uint64_t nbytes);
 
-void extrabuff_RLE(void **result, const RLE_compr_t *__src);
+void extrabuff_RLE(void **__dest, const RLE_compr_t *__src);
 
 #endif

@@ -90,6 +90,19 @@ status_t Fn_decrypt_file(const char *password, FILE *src, FILE *out)
 }
 status_t Fn_compress_file(FILE *src, FILE *out)
 {
+    status_t rv;
+    if (src == NULL)
+    {
+        _DEBUG("Source file is NULL.");
+        return ERR_NULLPTR;
+    }
+    if(out == NULL)
+    {
+        _DEBUG("Output file is NULL.");
+        return ERR_NULLPTR;
+    }
+    
+
 
     return STATUS_OK;
 }

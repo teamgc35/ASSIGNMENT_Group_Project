@@ -1,9 +1,9 @@
 #include "as_general.h"
 #include "as_compr_RLE.h"
 
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 void Test_NotAlignStruct()
 {
@@ -49,9 +49,45 @@ void Test_StringExtraction()
     printf("RLE String Extract PASS\n");
 }
 
+void Test_BufferCompression()
+{
+    double num1 = 10000;
+    RLE_compr_t compressed;
+    comprbuff_RLE(&compressed, &num1, sizeof(double));
+    assert(compressed.nbytes==sizeof(double));
+    printf("RLE Buffer Compress PASS.\n");
+}
+
+void Test_BufferExtraction1()
+{
+    double num1 = 1000;
+    RLE_compr_t compressed;
+    double *extracted;
+    comprbuff_RLE(&compressed, &num1, sizeof(double));
+    extrabuff_RLE((void**)&extracted, &compressed);
+    assert(*extracted == num1);
+    printf("RLE Buffer Extract1 PASS.\n");
+}
+
+void Test_BufferExtraction2()
+{
+    double nums[5] = {1,2,3,4,5};
+    RLE_compr_t compressed;
+    double *extracted;
+    comprbuff_RLE(&compressed, nums, sizeof(double)*5);
+    extrabuff_RLE((void**)&extracted, &compressed);
+    for(int i = 0; i < 5; i++)
+        assert(extracted[i] == nums[i]);
+    printf("RLE Buffer Exracte2 PASS.\n");
+}
+
 int main()
 {
+    printf("Test Case RLE begin...\n");
     Test_NotAlignStruct();
     Test_StringCompression();
     Test_StringExtraction();
+    Test_BufferCompression();
+    Test_BufferExtraction1();
+    Test_BufferExtraction2();
 }

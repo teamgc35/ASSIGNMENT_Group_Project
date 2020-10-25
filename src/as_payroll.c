@@ -29,6 +29,33 @@ static int check_filepriv(const char *fname);
 /******************************************************************
 * implementation
 ******************************************************************/
+status_t rec_Build(record_t *rec, const char *fname, const char *lname, const char *phone, const char *email, const enum rank rank, float hours, float pay_rate)
+{
+    if (rec == NULL)
+    {
+        _DEBUG("record is NULL.");
+        return ERR_NULLPTR;
+    }
+    if (hours < 0)
+    {
+        _DEBUG("Hours worked should be >= 0.");
+        return ERR_PARAMS;
+    }
+    if (pay_rate < 0)
+    {
+        _DEBUG("Pay Rate should be >= 0.");
+        return ERR_PARAMS;
+    }
+    strncpy(rec->first_name, fname, MAX_NAME_LEN);
+    strncpy(rec->last_name, lname, MAX_NAME_LEN);
+    strncpy(rec->phone, phone, MAX_PHONE_LEN);
+    strncpy(rec->email, email, MAX_EMAIL_LEN);
+    rec->rank = rank;
+    rec->hours_worked = hours;
+    rec->pay_rate = pay_rate;
+    return STATUS_OK;
+}
+
 status_t pr_Init(pr_header_t *__h, const char *name, const char *password)
 {
     if (__h == NULL)
@@ -50,7 +77,7 @@ status_t pr_Init(pr_header_t *__h, const char *name, const char *password)
     }
     __h->current_id = 0;
     __h->size = 0;
-    __h->status= PR_ACCESS;
+    __h->status = PR_ACCESS;
     list_Init(&(__h->records), sizeof(record_t));
     return STATUS_OK;
 }
@@ -126,7 +153,7 @@ status_t pr_Load(pr_header_t *__h, const char *filename, const char *password)
 status_t pr_Dump(pr_header_t *__h)
 {
     status_t rv;
-    if(__h == NULL)
+    if (__h == NULL)
     {
         _DEBUG("Payroll Header is NULL.");
         return ERR_NULLPTR;
@@ -144,7 +171,7 @@ status_t pr_Add(pr_header_t *__h, const record_t *record)
         _DEBUG("Payroll Header is NULL.");
         return ERR_NULLPTR;
     }
-    if(__h->status != PR_ACCESS)
+    if (__h->status != PR_ACCESS)
     {
         _DEBUG("Unable to access Payroll Header.");
         return STATUS_FAIL;
@@ -174,14 +201,16 @@ status_t pr_Add(pr_header_t *__h, const record_t *record)
         return ERR_UNIQREQ;
     }
     rv = list_PushBack(&(__h->records), record);
-    // TODO: modify record id
+
+    record_t *tmp = (record_t *)list_GetData(&(__h->records), __h->size);
+    tmp->id = ++(__h->current_id);
     // list_Get(&(__h->records), )
     if (rv != STATUS_OK)
     {
         _DEBUG("Failed to add record.");
         return rv;
     }
-    __h->size+=1;
+    __h->size += 1;
     return STATUS_OK;
 }
 
@@ -193,7 +222,7 @@ uint64_t pr_Find(pr_header_t *__h, record_t **__res, const char *fname, const ch
         _DEBUG("Payroll Header is NULL.");
         return 0;
     }
-    if(__h->status != PR_ACCESS)
+    if (__h->status != PR_ACCESS)
     {
         _DEBUG("Unable to access Payroll Header.");
         return 0;
@@ -252,7 +281,7 @@ uint64_t pr_Findfn(pr_header_t *__h, record_t **__res, const char *fname)
         _DEBUG("Payroll Header is NULL.");
         return ERR_NULLPTR;
     }
-    if(__h->status != PR_ACCESS)
+    if (__h->status != PR_ACCESS)
     {
         _DEBUG("Unable to access Payroll Header");
         return 0;
@@ -306,7 +335,7 @@ uint64_t pr_Findln(pr_header_t *__h, record_t **__res, const char *lname)
         _DEBUG("Payroll Header is NULL.");
         return ERR_NULLPTR;
     }
-    if(__h->status != PR_ACCESS)
+    if (__h->status != PR_ACCESS)
     {
         _DEBUG("Unable to access Payroll Header.");
         return 0;
@@ -359,7 +388,7 @@ record_t *pr_Getby_ph(pr_header_t *__h, const char *phone)
         _DEBUG("Payroll Header is NULL.");
         return NULL;
     }
-    if(__h->status != PR_ACCESS)
+    if (__h->status != PR_ACCESS)
     {
         _DEBUG("Unable to access Payroll Header.");
         return NULL;
@@ -395,7 +424,7 @@ record_t *pr_Getby_em(pr_header_t *__h, const char *email)
         _DEBUG("Payroll Header is NULL.");
         return NULL;
     }
-    if(__h->status != PR_ACCESS)
+    if (__h->status != PR_ACCESS)
     {
         _DEBUG("Unable to access Payroll Header.");
         return NULL;
@@ -467,14 +496,14 @@ static int checkfmt_name(const char *name)
 {
     uint64_t i;
     uint64_t __inLen = strlen(name);
-    if(__inLen <= MAX_NAME_LEN)
+    if (__inLen <= MAX_NAME_LEN)
     {
-        for(i = 0; i < __inLen; i++)
+        for (i = 0; i < __inLen; i++)
         {
             if (name[i] == ' ' || name[i] == '\\' || name[i] == '/')
                 return 0;
         }
-        return 0;
+        return 1;
     }
     return 0;
 }
@@ -483,11 +512,11 @@ static int uniq_phone(const pr_header_t *__h, const char *phone)
 {
     register uint64_t i;
     record_t *rec;
-    for(i = 0; i < __h->size; i++)
+    for (i = 0; i < __h->size; i++)
     {
-        rec = (record_t*)list_Get(&(__h->records), i);
-        if(!strcmp(phone, rec->phone))
-        /* if one record matches, the phone is not unique */
+        rec = (record_t *)list_Get(&(__h->records), i);
+        if (!strcmp(phone, rec->phone))
+            /* if one record matches, the phone is not unique */
             return 0;
     }
     return 1;
@@ -496,11 +525,11 @@ static int uniq_email(const pr_header_t *__h, const char *email)
 {
     register uint64_t i;
     record_t *rec;
-    for(i = 0; i < __h->size; i++)
+    for (i = 0; i < __h->size; i++)
     {
-        rec = (record_t*)list_Get(&(__h->records), i);
-        if(!strcmp(email, rec->email))
-        /* if one record matches, the phone is not unique */
+        rec = (record_t *)list_Get(&(__h->records), i);
+        if (!strcmp(email, rec->email))
+            /* if one record matches, the phone is not unique */
             return 0;
     }
     return 1;

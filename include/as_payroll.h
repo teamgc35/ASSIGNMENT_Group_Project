@@ -16,8 +16,8 @@
 #define PR_DESTROY -1
 
 enum rank {
-    _STAFF,
-    _MANAGER,
+    RK_STAFF,
+    RK_MANAGER,
 };
 
 typedef struct payroll_record {
@@ -31,7 +31,7 @@ typedef struct payroll_record {
     float pay_rate;
 } record_t;
 
-// void rec_Init(const char* fname, const char* lname, const char* phone, const char* email, const enum rank rank, );
+status_t rec_Build(record_t* rec, const char* fname, const char* lname, const char* phone, const char* email, const enum rank rank, float hours, float pay_rate);
 
 typedef struct payroll_header {
     char pr_fname[MAX_PRNAME_LEN+1]; /* payroll filename */
