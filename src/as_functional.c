@@ -101,9 +101,6 @@ status_t Fn_compress_file(FILE *src, FILE *out)
         _DEBUG("Output file is NULL.");
         return ERR_NULLPTR;
     }
-    
-
-
     return STATUS_OK;
 }
 

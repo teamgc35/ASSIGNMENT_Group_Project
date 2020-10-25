@@ -2,3 +2,5 @@
 build
 TestCase
 build_debug
+cmake-build-debug
+.idea

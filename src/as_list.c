@@ -35,7 +35,6 @@ void* list_GetData(const list_t* __list, const uint64_t __index)
 
 status_t list_PushBack(list_t *__list, const void *__data)
 {
-    // TODO: Duo Linked List PushBack can be optimize.
     if (__list == NULL)
     {
         _DEBUG("list operation does not accept NULL list.");
@@ -49,10 +48,10 @@ status_t list_PushBack(list_t *__list, const void *__data)
         __list->size += 1;
         return STATUS_OK;
     }
-    lnode_t *node = __list->head;
-    while (node->pNext != __list->head && node->pNext != NULL)
-        node = node->pNext;
+    /* Find the last node */
+    lnode_t *node = __list->head->pLast;
     node->pNext = lnode_init(__data, __list->element_size);
+    /* Update buffer head node pLast */
     __list->head->pLast = node->pNext;
     node->pNext->pLast = node;
     node->pNext->pNext = __list->head;
@@ -64,7 +63,7 @@ status_t list_PushFront(list_t *__list, const void *__data)
 {
     if (__list == NULL)
     {
-        as_seterr(ERR_NULLPTR, "list operation does not accept NULL list.");
+        _DEBUG("list operation does not accept NULL list.");
         return ERR_NULLPTR;
     }
     if (__list->head == NULL)

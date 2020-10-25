@@ -7,24 +7,6 @@
 #include "as_errno.h"
 #include "as_encrypt.h"
 
-/****************************************************************
- * static function prototypes
- ****************************************************************/
-/* Pass -> 1; Fail -> 0 */
-static int checkfmt_phone(const char *phone);
-static int checkfmt_email(const char *email);
-static int checkfmt_passwd(const char *password);
-static int checkfmt_filename(const char *fname);
-static int checkfmt_name(const char *name);
-
-/* check if the phone number is unique */
-static int uniq_phone(const pr_header_t *__h, const char *phone);
-
-/* check if the email is unique */
-static int uniq_email(const pr_header_t *__h, const char *email);
-
-/* check if file exist and current user is able to access it */
-static int check_filepriv(const char *fname);
 
 /******************************************************************
 * implementation
@@ -54,6 +36,11 @@ status_t rec_Build(record_t *rec, const char *fname, const char *lname, const ch
     rec->hours_worked = hours;
     rec->pay_rate = pay_rate;
     return STATUS_OK;
+}
+
+void rec_print(const record_t* rec)
+{
+
 }
 
 status_t pr_Init(pr_header_t *__h, const char *name, const char *password)
@@ -91,6 +78,7 @@ void pr_Destroy(pr_header_t *__h)
 status_t pr_Load(pr_header_t *__h, const char *filename, const char *password)
 {
     status_t rv;
+    /* Pre-check */
     if (__h == NULL)
     {
         _DEBUG("Payroll Header is NULL.");
@@ -107,6 +95,8 @@ status_t pr_Load(pr_header_t *__h, const char *filename, const char *password)
         _DEBUG("Failed to open payroll file.");
         return STATUS_FAIL;
     }
+    /* End of pre-check */
+
     list_Init(&(__h->records), sizeof(record_t));
     /* Try to extract encrypted password in a payroll file */
     encrbuff_t encrpwd;
@@ -116,7 +106,7 @@ status_t pr_Load(pr_header_t *__h, const char *filename, const char *password)
     encrpwd.buffer[encrpwd.nbytes] = '\0';
     fread(&(encrpwd.buffer), 1, encrpwd.nbytes, Fp_pr);
 
-    /* Decrypte the password */
+    /* Decrypt the password */
     char *desire_pwd;
     rv = decrypt_buff((void **)&desire_pwd, &encrpwd);
     if (rv != STATUS_OK)
@@ -158,7 +148,30 @@ status_t pr_Dump(pr_header_t *__h)
         _DEBUG("Payroll Header is NULL.");
         return ERR_NULLPTR;
     }
-    // TODO:
+    /* Check if the file is accessable */
+    if (!check_filepriv(__h->pr_fname))
+    {
+        _DEBUG("File is either not exist or not accessable.");
+        return STATUS_FAIL;
+    }
+    /* Open File to write */
+    FILE *Fp = fopen(__h->pr_fname, "wb");
+    /* Check fopen is success */
+    if (Fp == NULL)
+    {
+        _DEBUG("Failed to open file.");
+        return STATUS_FAIL;
+    }
+    /*
+     * Payroll file memory layout:
+     *  1. password length
+     *  2. encrypted password
+     *  3. payroll size
+     *  4. current_id
+     *  5. encrypted and compressed records ...
+     */
+
+
 
     return STATUS_OK;
 }
@@ -456,25 +469,25 @@ record_t *pr_Getby_em(pr_header_t *__h, const char *email)
 /****************************************************************
  * static function implementation
  ****************************************************************/
-static int checkfmt_phone(const char *phone)
+int checkfmt_phone(const char *phone)
 {
     if (strlen(phone) <= MAX_PHONE_LEN)
         return 1;
     return 0;
 }
-static int checkfmt_email(const char *email)
+int checkfmt_email(const char *email)
 {
     if (strlen(email) <= MAX_EMAIL_LEN)
         return 1;
     return 0;
 }
-static int checkfmt_passwd(const char *password)
+int checkfmt_passwd(const char *password)
 {
     if (strlen(password) <= MAX_PASSWD_LEN)
         return 1;
     return 0;
 }
-static int checkfmt_filename(const char *fname)
+int checkfmt_filename(const char *fname)
 {
     uint64_t i;
     /* filename (Payroll Name) length */
@@ -492,7 +505,7 @@ static int checkfmt_filename(const char *fname)
     return 0;
 }
 
-static int checkfmt_name(const char *name)
+int checkfmt_name(const char *name)
 {
     uint64_t i;
     uint64_t __inLen = strlen(name);
@@ -508,7 +521,7 @@ static int checkfmt_name(const char *name)
     return 0;
 }
 
-static int uniq_phone(const pr_header_t *__h, const char *phone)
+int uniq_phone(const pr_header_t *__h, const char *phone)
 {
     register uint64_t i;
     record_t *rec;
@@ -521,7 +534,7 @@ static int uniq_phone(const pr_header_t *__h, const char *phone)
     }
     return 1;
 }
-static int uniq_email(const pr_header_t *__h, const char *email)
+int uniq_email(const pr_header_t *__h, const char *email)
 {
     register uint64_t i;
     record_t *rec;
@@ -534,7 +547,7 @@ static int uniq_email(const pr_header_t *__h, const char *email)
     }
     return 1;
 }
-static int check_filepriv(const char *fname)
+int check_filepriv(const char *fname)
 {
     if (access(fname, R_OK | W_OK | F_OK) == 0)
         return 1;

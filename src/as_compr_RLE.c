@@ -69,14 +69,13 @@ void comprbuff_RLE(RLE_compr_t *__dest, const void *__src, const uint64_t nbytes
     list_t list;
     RLEnode_t tmp_node;
 
-    register uint64_t i;
     list_Init(&list, sizeof(RLEnode_t));
     /* Cast any buffer into char ptr */
     char* buff = (char*)__src;
-    tmp_node.ch = buff[i];
+    tmp_node.ch = buff[0];
     tmp_node.times = 1;
 
-
+    register uint64_t i;
     for (i = 1; i < nbytes; i++)
     {
         if (buff[i] == tmp_node.ch)

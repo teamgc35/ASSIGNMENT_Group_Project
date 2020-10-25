@@ -15,10 +15,4 @@
 #define ERR_FIELDFMT (BASE_ERR + 105)   /* Error Field Format */
 #define ERR_UNIQREQ (BASE_ERR + 106)    /* Error Unique required */
 
-/* set error */
-void as_seterr(status_t, const char *);
-
-/* Print out last error */
-void as_plasterr();
-
 #endif

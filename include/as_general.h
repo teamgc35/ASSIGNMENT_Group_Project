@@ -1,8 +1,7 @@
-#ifndef __GENERAL_H__
-#define __GENERAL_H__
+#ifndef __AS_GENERAL_H__
+#define __AS_GENERAL_H__
 
 #include <stdio.h>
-#include <stdlib.h>
 
 #ifndef NDEBUG
 #define _DEBUGF(fmt, ...) fprintf(stderr, "%s:%d in %s | " fmt "\n", __FILE__, __LINE__, __FUNCTION__ , __VA_ARGS__)
@@ -12,7 +11,6 @@
 #endif
 
 typedef int status_t;
-
 typedef int int32_t;
 typedef unsigned int uint32_t;
 typedef long int64_t;
