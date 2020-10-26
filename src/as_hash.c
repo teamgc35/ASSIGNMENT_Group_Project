@@ -1,6 +1,6 @@
 #include "as_hash.h"
 
-#include <string.h>
+#include <string.h> /* strlen */
 
 uint32_t as_hash(const void *__in, const uint64_t nbytes)
 {

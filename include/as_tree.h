@@ -18,7 +18,12 @@ typedef struct huffman_tree_t
     tnode_t* root;
 } hfmtree_t;
 
+/* build the huffman tree from a linked list */
 status_t hfmtree_Build(hfmtree_t *tree, const list_t* list);
+
+/* get value using key form huffman tree */
 status_t hfmtree_Get(hfmtree_t *tree, const char ch);
+
+/* add a tree node to the huffman tree */
 status_t hfmtree_Add(hfmtree_t *tree, const tnode_t *node);
 #endif

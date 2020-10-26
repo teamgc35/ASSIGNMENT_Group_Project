@@ -1,12 +1,10 @@
 #ifndef __AS_FUNCTIONAL_H__
 #define __AS_FUNCTIONAL_H__
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <stdio.h> /* FILE */
 
 #ifndef NDEBUG
-#include <assert.h>
+#include <assert.h> /* assert */
 #endif
 
 #include "as_general.h"

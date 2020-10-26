@@ -7,11 +7,16 @@
 
 static int menu();
 static void call(int choice);
-static void cli_help();
 static void add_record();
 static void display_all();
 static void search_record();
 static enum rank choose_rank();
+
+static void searchby_fullname();
+static void searchby_firstname();
+static void searchby_lastname();
+static void getby_phone();
+static void getby_email();
 
 static pr_header_t payroll;
 static status_t rv;
@@ -197,6 +202,7 @@ static void display_all()
         return;
     }
     uint64_t i;
+    rechead_print();
     for(i = 0; i < payroll.size; i++)
         rec_print((record_t*)list_GetData(&(payroll.records), i));
     printf("---------------------------------------------------------\n");
@@ -210,7 +216,36 @@ static void search_record()
             "3. Search by last name\n"
             "4. Search by phone\n"
             "5. Search by email\n"
+            "6. Go Back\n"
+            "Please enter your choice: "
             );
+    int choice;
+    while (1)
+    {
+        scanf("%d", &choice);
+        switch (choice) {
+            case 1:
+                searchby_fullname();
+                break;
+            case 2:
+                searchby_firstname();
+                break;
+            case 3:
+                searchby_lastname();
+                break;
+            case 4:
+                getby_email();
+                break;
+            case 5:
+                getby_phone();
+                break;
+            case 6:
+                return;
+            default:
+                printf("Unkown Choice\n");
+        }
+    }
+
 }
 static enum rank choose_rank()
 {
@@ -219,6 +254,7 @@ static enum rank choose_rank()
     printf(
             "1. Staff\n"
             "2. Manager\n"
+            "3. Supervisor\n"
             );
     scanf("%d",&rk_num);
     while (1)
@@ -229,6 +265,8 @@ static enum rank choose_rank()
                 return RK_STAFF;
             case 2:
                 return RK_MANAGER;
+            case 3:
+                return RK_SUPERVISOR;
             default:
                 printf("Unknown choice, please enter again: ");
                 scanf("%d",&rk_num);
@@ -242,4 +280,102 @@ static void buff_clean()
 {
     _DEBUG("Clean TMP_BUFF.");
     memset(TMP_BUFF, 0, 256);
+}
+
+static void searchby_fullname()
+{
+    char fistname[MAX_NAME_LEN+1];
+    char lastname[MAX_NAME_LEN+1];
+
+    /* get first name and last name form stdin */
+    printf("Please enter the first name: ");
+    scanf("%s", fistname);
+    printf("Please enter the last name: ");
+    scanf("%s", lastname);
+
+    record_t *records;
+    uint64_t len;
+    register uint64_t i;
+
+    len = pr_Find(&payroll, &records, fistname, lastname);
+    rechead_print();
+    for(i = 0; i < len; i++)
+        rec_print(records+i);
+    printf("---------------------------------------------------------\n");
+    printf("Total: %lu records\n", len);
+
+}
+
+static void searchby_firstname()
+{
+    char firstname[MAX_NAME_LEN+1];
+
+    /* get first name from stdin */
+    printf("Please enter the first name: ");
+    scanf("%s", firstname);
+
+    record_t *records;
+    uint64_t len;
+    register uint64_t i;
+
+    len = pr_Findfn(&payroll, &records,firstname);
+    rechead_print();
+    for(i = 0; i < len; i++)
+            rec_print(records+i);
+    printf("---------------------------------------------------------\n");
+    printf("Total: %lu records\n", len);
+}
+static void searchby_lastname()
+{
+    char lastname[MAX_NAME_LEN+1];
+
+    /* get first name from stdin */
+    printf("Please enter the last name: ");
+    scanf("%s", lastname);
+
+    record_t *records;
+    uint64_t len;
+    register uint64_t i;
+
+    len = pr_Findln(&payroll, &records, lastname);
+    rechead_print();
+    for(i = 0; i < len; i++)
+        rec_print(records+i);
+    printf("---------------------------------------------------------\n");
+    printf("Total: %lu records\n", len);
+}
+static void getby_phone()
+{
+    char phone[MAX_PHONE_LEN+1];
+
+    /* get phone form stdin */
+    printf("Please enter the phone: ");
+    scanf("%s", phone);
+
+    record_t *record = pr_Getby_ph(&payroll,phone);
+    if (record == NULL)
+    {
+        printf("No Such a record.\n");
+        return;
+    }
+    rechead_print();
+    rec_print(record);
+}
+
+static void getby_email()
+{
+    char email[MAX_EMAIL_LEN+1];
+
+    /* get email form stdin */
+    printf("Please enter the email: ");
+    scanf("%s", email);
+
+    record_t *record = pr_Getby_em(&payroll,email);
+    if (record == NULL)
+    {
+        printf("No Such a record.\n");
+        return;
+    }
+    rechead_print();
+    rec_print(record);
 }

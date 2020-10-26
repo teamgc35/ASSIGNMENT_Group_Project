@@ -38,6 +38,7 @@ const char *get_sarg(int argc, const char **argv, const char sarg);
  */
 const char *get_larg(int argc, const char **argv, const char *larg);
 
+/* if larg is not found it will try to parse sarg */
 const char *parse_argv(int argc, const char **argv, const char *larg, const char sarg);
 
 #endif

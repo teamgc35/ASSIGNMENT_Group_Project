@@ -85,6 +85,8 @@ void Test_Getby_em()
     assert(!strcmp(added_rec->last_name, "ZHONG"));
     assert(!strcmp(added_rec->phone, "13281122813"));
     assert(!strcmp(added_rec->email, "zhongxiao0711@gmail.com"));
+    rechead_print();
+    rec_print(added_rec);
 
     pr_Destroy(&pr);
     assert(pr.status == PR_DESTROY);

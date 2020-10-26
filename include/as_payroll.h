@@ -18,6 +18,7 @@ enum rank {
     RK_UNKNOWN = -1,
     RK_STAFF = 1,
     RK_MANAGER = 2,
+    RK_SUPERVISOR = 3,
 };
 
 typedef struct payroll_record {
@@ -45,8 +46,10 @@ typedef struct payroll_header {
 status_t rec_Build(record_t* rec, const char* fname, const char* lname, const char* phone, const char* email, const enum rank rank, float hours, float pay_rate);
 
 /* printf the record */
-//TODO
 void rec_print(const record_t* rec);
+
+/* print the record head */
+void rechead_print();
 
 /* Create a new payroll */
 status_t pr_Init(pr_header_t *__h, const char* name, const char* password);

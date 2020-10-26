@@ -25,6 +25,6 @@ typedef char sbyte; /* signed byte */
 #define MAX_MAP_HEAD 128
 
 
-#define TITLE "<HD PROGRAM>"
+#define TITLE "TOOL BOX"
 
 #endif

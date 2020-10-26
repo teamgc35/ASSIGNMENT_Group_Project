@@ -1,7 +1,7 @@
 #include "as_list.h"
 #include "as_array.h"
-#include <stdlib.h>
-#include <string.h>
+#include <stdlib.h> /* malloc */
+#include <string.h> /* memcpy */
 
 static lnode_t *lnode_init(const void *data, const uint64_t elem_size);
 

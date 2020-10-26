@@ -1,8 +1,9 @@
 #include "as_functional.h"
 #include "as_errno.h"
 #include "as_encrypt.h"
+#include "as_compr_RLE.h"
 
-#include <stdio.h>  /* fputs fgets fread fwrite fseek rewind perror printf */
+#include <stdio.h>  /* fputs fgets fread fwrite fseek rewind printf */
 #include <stdlib.h> /* free malloc*/
 #include <string.h> /* strcmp */
 
@@ -10,6 +11,16 @@ status_t Fn_encrypt_file(const char *password, FILE *src, FILE *out)
 {
     /* 1. Encrypt the password */
     int rv;
+    if (src == NULL)
+    {
+        _DEBUG("Source file is NULL.");
+        return ERR_NULLPTR;
+    }
+    if(out == NULL)
+    {
+        _DEBUG("Output file is NULL.");
+        return ERR_NULLPTR;
+    }
     encrbuff_t encr_passwd;
     encrbuff_t encr_file;
     char *buffer;
@@ -21,8 +32,8 @@ status_t Fn_encrypt_file(const char *password, FILE *src, FILE *out)
     fwrite(&(encr_passwd.nbytes), sizeof(size_t), 1, out);
     fputs(encr_passwd.buffer, out);
 
-    // fwrite(encr_passwd.buffer, sizeof(char), encr_passwd.nbytes, out);
-    // fwrite("\n", 1, 1, out);
+    /* fwrite(encr_passwd.buffer, sizeof(char), encr_passwd.nbytes, out); */
+    /* fwrite("\n", 1, 1, out); */
     /* 3. Encrypt buffer */
 
     /* 3.1. Find out the nbytes of the src file */
@@ -47,6 +58,16 @@ status_t Fn_encrypt_file(const char *password, FILE *src, FILE *out)
 status_t Fn_decrypt_file(const char *password, FILE *src, FILE *out)
 {
     status_t rv;
+    if (src == NULL)
+    {
+        _DEBUG("Source file is NULL.");
+        return ERR_NULLPTR;
+    }
+    if(out == NULL)
+    {
+        _DEBUG("Output file is NULL.");
+        return ERR_NULLPTR;
+    }
     char file_passwd[32];
     char *decrypted_passwd;
     char *decrypted_buffer;
@@ -90,7 +111,8 @@ status_t Fn_decrypt_file(const char *password, FILE *src, FILE *out)
 }
 status_t Fn_compress_file(FILE *src, FILE *out)
 {
-    status_t rv;
+    char *buffer;
+
     if (src == NULL)
     {
         _DEBUG("Source file is NULL.");
@@ -101,11 +123,54 @@ status_t Fn_compress_file(FILE *src, FILE *out)
         _DEBUG("Output file is NULL.");
         return ERR_NULLPTR;
     }
+    /*
+     * 1. Load source file data into memory
+     * 2. compressed with RLE
+     * 3. save the file
+     */
+    int64_t src_start_pos = ftell(src);
+    /* Find out how many bytes of the source file */
+    int64_t nLen = 0;
+    fseek(src, 0, SEEK_END);
+    nLen = ftell(src);
+    /* reset FILE cursor */
+    fseek(src, src_start_pos, SEEK_SET);
+    /* +1 and set it to '\0', just in case it cstring buffer */
+    buffer = (char*)malloc(nLen+1);
+    buffer[nLen] = '\0';
+    nLen = fread(buffer, sizeof(char), nLen, src);
+
+    /* compress the file data */
+    RLE_compr_t compressed;
+    comprbuff_RLE(&compressed,buffer, nLen);
+
+    /* Save the compressed data to file */
+    RLE_compr_Dump(out,&compressed);
     return STATUS_OK;
 }
 
 status_t Fn_extract_file(FILE *src, FILE* out)
 {
+    if (src == NULL)
+    {
+        _DEBUG("Source file is NULL.");
+        return ERR_NULLPTR;
+    }
+    if(out == NULL)
+    {
+        _DEBUG("Output file is NULL.");
+        return ERR_NULLPTR;
+    }
+    void *buffer;
 
+    /* load compressed file */
+    RLE_compr_t compressed;
+    RLE_compr_Load(src, &compressed);
+    _DEBUGF("Compressed file load, total %lu bytes.", compressed.nbytes);
+    /* extract into memory */
+    extrabuff_RLE(&buffer, &compressed);
+    /* save it to file */
+    fwrite(buffer, 1, compressed.nbytes, out);
+    _DEBUG("Extract complete.");
     return STATUS_OK;
 }

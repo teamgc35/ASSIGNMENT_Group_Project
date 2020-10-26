@@ -81,6 +81,34 @@ void Test_BufferExtraction2()
     printf("RLE Buffer Exracte2 PASS.\n");
 }
 
+void Test_Dump()
+{
+    double num[] = {1,2,3,4,5};
+    RLE_compr_t compressed;
+
+    comprbuff_RLE(&compressed, num, sizeof(double)*5);
+    FILE *Fp = fopen("compressed.rle", "wb");
+    RLE_compr_Dump(Fp, &compressed);
+    fclose(Fp);
+    printf("RLE Dump PASS.\n");
+}
+void Test_Load()
+{
+    RLE_compr_t compressed;
+    FILE *Fp = fopen("compressed.rle", "rb");
+    RLE_compr_Load(Fp, &compressed);
+    double *buffer;
+    extrabuff_RLE((void**)&buffer, &compressed);
+    assert(buffer[0] == 1);
+    assert(buffer[1] == 2);
+    assert(buffer[2] == 3);
+    assert(buffer[3] == 4);
+    assert(buffer[4] == 5);
+    fclose(Fp);
+    printf("RLE Load PASS.\n");
+}
+
+
 int main()
 {
     printf("Test Case RLE begin...\n");
@@ -90,4 +118,6 @@ int main()
     Test_BufferCompression();
     Test_BufferExtraction1();
     Test_BufferExtraction2();
+    Test_Dump();
+    Test_Load();
 }

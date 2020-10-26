@@ -6,6 +6,7 @@
 #include "as_payroll.h"
 #include "as_errno.h"
 #include "as_encrypt.h"
+#include "as_compr_RLE.h"
 
 
 /******************************************************************
@@ -40,9 +41,74 @@ status_t rec_Build(record_t *rec, const char *fname, const char *lname, const ch
 
 void rec_print(const record_t* rec)
 {
-
+    char *rk_buff;
+    /* rank to string */
+    switch (rec->rank) {
+        case RK_STAFF:
+            rk_buff = "Staff";
+            break;
+        case RK_MANAGER:
+            rk_buff = "Manager";
+            break;
+        case RK_SUPERVISOR:
+            rk_buff = "Supervisor";
+            break;
+        case RK_UNKNOWN:
+            rk_buff = "Unknown";
+            break;
+    }
+    printf(
+            "%-8lu " /* id */
+            "%-25s " /* first name */
+            "%-25s " /* last name */
+            "%-25s " /* phone */
+            "%-32s " /* email */
+            "%-15s " /* rank */
+            "%-15.2f " /* hours worked */
+            "%-15.2f\n", /* pay rate */
+            rec->id,
+            rec->first_name,
+            rec->last_name,
+            rec->phone,
+            rec->email,
+            rk_buff,
+            rec->hours_worked,
+            rec->pay_rate
+            );
 }
 
+void rechead_print()
+{
+
+    printf(
+            "%-8s " /* id */
+            "%-25s " /* first name */
+            "%-25s " /* last name */
+            "%-25s " /* phone */
+            "%-32s " /* email */
+            "%-15s " /* rank */
+            "%-15s " /* hours worked */
+            "%-15s\n", /* pay rate */
+            "ID",
+            "First Name",
+            "Last Name",
+            "Phone",
+            "Email",
+            "Rank",
+            "Hours Worked",
+            "Pay Rate"
+    );
+    printf(
+            "===================="
+            "===================="
+            "===================="
+            "===================="
+            "===================="
+            "===================="
+            "===================="
+            "====================\n"
+            );
+}
 status_t pr_Init(pr_header_t *__h, const char *name, const char *password)
 {
     if (__h == NULL)
@@ -104,11 +170,11 @@ status_t pr_Load(pr_header_t *__h, const char *filename, const char *password)
     _DEBUG("Password nbytes load.");
     encrpwd.buffer = (char *)malloc(encrpwd.nbytes + 1);
     encrpwd.buffer[encrpwd.nbytes] = '\0';
-    fread(&(encrpwd.buffer), 1, encrpwd.nbytes, Fp_pr);
+    fgets(encrpwd.buffer, encrpwd.nbytes, Fp_pr);
 
     /* Decrypt the password */
     char *desire_pwd;
-    rv = decrypt_buff((void **)&desire_pwd, &encrpwd);
+    rv = decrypt_str(&desire_pwd, &encrpwd);
     if (rv != STATUS_OK)
     {
         _DEBUG("Failed to decrypt.");
@@ -121,6 +187,8 @@ status_t pr_Load(pr_header_t *__h, const char *filename, const char *password)
         _DEBUG("Password does not match.");
         return ERR_CREDENTIAL;
     }
+    /* Load the password to payroll */
+    strncpy(__h->password, desire_pwd, MAX_PASSWD_LEN);
 
     /* Load size and current id */
     fread(&(__h->size), sizeof(uint64_t), 1, Fp_pr);
@@ -128,14 +196,16 @@ status_t pr_Load(pr_header_t *__h, const char *filename, const char *password)
 
     /* Load Records */
     register uint64_t i;
-    char tmp_buff[sizeof(record_t)];
+    record_t tmp_rec;
     for (i = 0; i < __h->size; i++)
     {
-        fread(tmp_buff, sizeof(record_t), 1, Fp_pr);
-        list_PushBack(&(__h->records), tmp_buff);
+        fread(&tmp_rec, sizeof(record_t), 1, Fp_pr);
+        list_PushBack(&(__h->records), &tmp_rec);
+        _DEBUGF("Lead a record success, index(%lu).", i);
     }
     fclose(Fp_pr);
     free(encrpwd.buffer);
+    /* Set payroll status ACCESSABLE */
     __h->status = PR_ACCESS;
     return STATUS_OK;
 }
@@ -164,15 +234,46 @@ status_t pr_Dump(pr_header_t *__h)
     }
     /*
      * Payroll file memory layout:
-     *  1. password length
+     *  1. password length [encrypted str]
      *  2. encrypted password
      *  3. payroll size
      *  4. current_id
-     *  5. encrypted and compressed records ...
+     *  5. encrypted and records ...
      */
 
+    /* Encrypt password */
+    encrbuff_t encr_pwd;
+    rv = encrypt_str(&encr_pwd, __h->password);
+    if (rv != STATUS_OK)
+    {
+        _DEBUGF("Failed to decrypt password (%d).", rv);
+        return rv;
+    }
 
+    /* save password length to FILE */
+    fwrite(&(encr_pwd.nbytes), sizeof(size_t),1, Fp);
+    /* save encrypted password to FILE */
+    fputs(encr_pwd.buffer, Fp);
 
+    /* Save payroll size */
+    fwrite(&(__h->size), sizeof(uint64_t), 1, Fp);
+    /* save current id */
+    fwrite(&(__h->current_id), sizeof(uint64_t), 1, Fp);
+
+    /* save encrypted records */
+    /* since all of record_t bytes is the same, no need to store nbytes */
+    encrbuff_t tmp_rec;
+    register uint64_t i;
+    for (i = 0; i < __h->size; i++)
+    {
+        rv = encrypt_buff(&tmp_rec, list_GetData(&(__h->records), i), sizeof(record_t));
+#ifndef NDEBUG
+        /* prevent if state executing every time even #define NDEBUG */
+        if (rv != STATUS_OK)
+            _DEBUGF("Failed to decrypt record (%d). Index: %lu", rv, i);
+#endif
+        fwrite((void*)(&tmp_rec), sizeof(record_t), 1, Fp);
+    }
     return STATUS_OK;
 }
 
@@ -396,6 +497,7 @@ uint64_t pr_Findln(pr_header_t *__h, record_t **__res, const char *lname)
 
 record_t *pr_Getby_ph(pr_header_t *__h, const char *phone)
 {
+    /* pre-check */
     if (__h == NULL)
     {
         _DEBUG("Payroll Header is NULL.");
@@ -418,6 +520,7 @@ record_t *pr_Getby_ph(pr_header_t *__h, const char *phone)
         _DEBUG("Invalid phone format.");
         return NULL;
     }
+    /* pre-check done */
     register uint64_t i;
     record_t *rec;
     for (i = 0; i < __h->records.size; i++)
@@ -466,9 +569,6 @@ record_t *pr_Getby_em(pr_header_t *__h, const char *email)
     return NULL;
 }
 
-/****************************************************************
- * static function implementation
- ****************************************************************/
 int checkfmt_phone(const char *phone)
 {
     if (strlen(phone) <= MAX_PHONE_LEN)
@@ -523,6 +623,11 @@ int checkfmt_name(const char *name)
 
 int uniq_phone(const pr_header_t *__h, const char *phone)
 {
+    if (__h == NULL)
+    {
+        _DEBUG("Payroll Header is NULL.");
+        return ERR_NULLPTR;
+    }
     register uint64_t i;
     record_t *rec;
     for (i = 0; i < __h->size; i++)
@@ -536,6 +641,11 @@ int uniq_phone(const pr_header_t *__h, const char *phone)
 }
 int uniq_email(const pr_header_t *__h, const char *email)
 {
+    if (__h == NULL)
+    {
+        _DEBUG("Payroll Header is NULL.");
+        return ERR_NULLPTR;
+    }
     register uint64_t i;
     record_t *rec;
     for (i = 0; i < __h->size; i++)
