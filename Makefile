@@ -1,6 +1,6 @@
 CC = gcc
 AR = ar
-CFLAGS = -g -Wall -ansi -Wextra -std=c99 
+CFLAGS = -g -Wall -ansi -Wextra -std=c99 -DNDEBUG
 SRC = $(wildcard ./src/*.c)
 TEST_SRC = $(wildcard ./test/*.c)
 INCLUDE = ./include

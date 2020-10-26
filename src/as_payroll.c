@@ -81,6 +81,7 @@ void rechead_print()
 {
 
     printf(
+            "\n\n"
             "%-8s " /* id */
             "%-25s " /* first name */
             "%-25s " /* last name */
@@ -376,7 +377,9 @@ uint64_t pr_Find(pr_header_t *__h, record_t **__res, const char *fname, const ch
             _DEBUGF("Matched Record index: %lu", i);
             rv = list_PushBack(&find_list, tmp);
             if (rv != STATUS_OK)
+            {
                 _DEBUGF("Failed to PushBack Record (%d)", rv);
+            }
         }
     }
     /* make it as an continuous data, better access speed O(1) */
@@ -430,7 +433,9 @@ uint64_t pr_Findfn(pr_header_t *__h, record_t **__res, const char *fname)
             _DEBUGF("Matched Record index: %lu", i);
             rv = list_PushBack(&find_list, tmp);
             if (rv != STATUS_OK)
+            {
                 _DEBUGF("Failed to PushBack Record (%d)", rv);
+            }
         }
     }
     /* make it as an continuous data, better access speed O(1) */
@@ -484,7 +489,9 @@ uint64_t pr_Findln(pr_header_t *__h, record_t **__res, const char *lname)
             _DEBUGF("Matched Record index: %lu", i);
             rv = list_PushBack(&find_list, tmp);
             if (rv != STATUS_OK)
+            {
                 _DEBUGF("Failed to PushBack Record (%d)", rv);
+            }
         }
     }
     /* make it as an continuous data, better access speed O(1) */

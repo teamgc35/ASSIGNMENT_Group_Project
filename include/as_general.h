@@ -8,6 +8,7 @@
 #define _DEBUG(msg) fprintf(stderr, "%s:%d in %s | %s\n", __FILE__, __LINE__, __FUNCTION__, msg)
 #else 
 #define _DEBUG(msg)
+#define _DEBUGF(fmt, ...)
 #endif
 
 typedef int status_t;

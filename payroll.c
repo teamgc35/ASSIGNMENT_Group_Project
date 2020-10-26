@@ -17,6 +17,7 @@ static void searchby_firstname();
 static void searchby_lastname();
 static void getby_phone();
 static void getby_email();
+static void save_change();
 
 static pr_header_t payroll;
 static status_t rv;
@@ -103,7 +104,8 @@ static int menu()
     printf("1. Add Record\n");
     printf("2. Display All Records\n");
     printf("3. Search a Record\n");
-    printf("4. Exist Program\n");
+    printf("4. Save changes\n");
+    printf("5. Save & Exist Program\n");
     printf("Please enter your choice: ");
     scanf("%d", &choice);
     return choice;
@@ -122,6 +124,10 @@ static void call(int choice)
         search_record();
         break;
     case 4:
+        save_change();
+        break;
+    case 5:
+        save_change();
         return;
     default:
         printf("Unkown Choice\n");
@@ -192,7 +198,9 @@ static void add_record()
 
     rv = pr_Add(&payroll, &tmp);
     if (rv != STATUS_OK)
+    {
         _DEBUGF("Failed to add a new record. (%d)", rv);
+    }
 }
 static void display_all()
 {
@@ -323,7 +331,7 @@ static void searchby_firstname()
     for(i = 0; i < len; i++)
             rec_print(records+i);
     printf("---------------------------------------------------------\n");
-    printf("Total: %lu records\n", len);
+    printf("Total: %lu records\n\n", len);
 }
 static void searchby_lastname()
 {
@@ -378,4 +386,9 @@ static void getby_email()
     }
     rechead_print();
     rec_print(record);
+}
+
+static void save_change()
+{
+    pr_Dump(&payroll);
 }

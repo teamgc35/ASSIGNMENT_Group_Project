@@ -85,8 +85,6 @@ void Test_Getby_em()
     assert(!strcmp(added_rec->last_name, "ZHONG"));
     assert(!strcmp(added_rec->phone, "13281122813"));
     assert(!strcmp(added_rec->email, "zhongxiao0711@gmail.com"));
-    rechead_print();
-    rec_print(added_rec);
 
     pr_Destroy(&pr);
     assert(pr.status == PR_DESTROY);
@@ -167,11 +165,14 @@ void Test_Findfn()
     record_t rec;
     rec_Build(&rec, "Xiao", "ZHONG", "13281122813", "zhongxiao0711@gmail.com", RK_MANAGER, 5.5, 35.5);
     rv = pr_Add(&pr, &rec);
+    assert(rv == 0);
     rec_Build(&rec, "Xiao", "zzzz", "13281122814", "zhongxiao0712@gmail.com", RK_MANAGER, 5.5, 35.5);
     rv = pr_Add(&pr, &rec);
+    assert(rv == 0);
     rec_Build(&rec, "Xiao", "bbbb", "13281122815", "zhongxiao0713@gmail.com", RK_MANAGER, 5.5, 35.5);
     rv = pr_Add(&pr, &rec);
     assert(rv == 0);
+
     assert(pr.size == 3);
     assert(pr.current_id == 3);
 
@@ -192,6 +193,31 @@ void Test_Findfn()
     printf("Test Findfn PASS!\n");
 }
 
+void Test_Print()
+{
+    printf("\nBegin to print records\n\n\n");
+    pr_header_t pr;
+    rv = pr_Init(&pr, "payroll_1", "123aaa");
+    assert(rv == 0);
+    assert(pr.status == PR_ACCESS);
+    record_t rec;
+    rec_Build(&rec, "Xiao", "ZHONG", "13281122813", "zhongxiao0711@gmail.com", RK_MANAGER, 5.5, 35.5);
+    rv = pr_Add(&pr, &rec);
+    rec_Build(&rec, "Xiao", "zzzz", "13281122814", "zhongxiao0712@gmail.com", RK_MANAGER, 5.5, 35.5);
+    rv = pr_Add(&pr, &rec);
+    rec_Build(&rec, "Xiao", "bbbb", "13281122815", "zhongxiao0713@gmail.com", RK_MANAGER, 5.5, 35.5);
+    rv = pr_Add(&pr, &rec);
+    rec_Build(&rec, "Xiao", "cccc", "13281122816", "zhongxiao0714@gmail.com", RK_MANAGER, 5.5, 35.5);
+    rv = pr_Add(&pr, &rec);
+
+    uint64_t i;
+    rechead_print();
+    for(i = 0; i < pr.size; i++)
+        rec_print((record_t*)list_GetData(&pr.records, i));
+    printf("\nfinished printing records\n");
+}
+
+
 int main()
 {
     printf("TestCase Payroll Begin\n");
@@ -202,4 +228,5 @@ int main()
     Test_Find();
     Test_Findln();
     Test_Findfn();
+    Test_Print();
 }
