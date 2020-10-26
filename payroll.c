@@ -42,6 +42,7 @@ int main(int argc, const char *argv[])
         }
         _DEBUG("Payroll filename format pass.");
         strncpy(filename, TMP_BUFF, MAX_PRNAME_LEN);
+        _DEBUGF("Payroll filename: %s", filename);
         /* Ask user to set a payroll file password */
         printf("Please set a new password for the payroll file: ");
         buff_clean();
@@ -90,8 +91,11 @@ int main(int argc, const char *argv[])
     while (1)
     {
         choice = menu();
-        if (choice == 4)
+        if (choice == 5)
+        {
+            save_change();
             return 0;
+        }
         call(choice);
     }
     return 0;
@@ -126,9 +130,6 @@ static void call(int choice)
     case 4:
         save_change();
         break;
-    case 5:
-        save_change();
-        return;
     default:
         printf("Unkown Choice\n");
         return;
@@ -173,7 +174,7 @@ static void add_record()
         buff_clean();
         scanf("%s", TMP_BUFF);
     }
-    strncpy(tmp.email, TMP_BUFF, MAX_NAME_LEN);
+    strncpy(tmp.email, TMP_BUFF, MAX_EMAIL_LEN);
 
     /* Set Phone */
     printf("Please enter the phone(max 15 char): ");
@@ -185,15 +186,13 @@ static void add_record()
         buff_clean();
         scanf("%s", TMP_BUFF);
     }
-    strncpy(tmp.phone, TMP_BUFF, MAX_NAME_LEN);
+    strncpy(tmp.phone, TMP_BUFF, MAX_PHONE_LEN);
     tmp.rank = choose_rank();
     /* Set hours worked */
     printf("Please set hours worked: ");
-    buff_clean();
     scanf("%f", &tmp.hours_worked);
     /* Set pay rate */
     printf("Please set pay rate: ");
-    buff_clean();
     scanf("%f", &tmp.pay_rate);
 
     rv = pr_Add(&payroll, &tmp);
@@ -214,11 +213,12 @@ static void display_all()
     for(i = 0; i < payroll.size; i++)
         rec_print((record_t*)list_GetData(&(payroll.records), i));
     printf("---------------------------------------------------------\n");
-    printf("Total: %lu records\n", payroll.size);
+    printf("Total: %lu records\n\n\n", payroll.size);
 }
 static void search_record()
 {
     printf(
+            "\n\n"
             "1. Search by full name\n"
             "2. Search by first name\n"
             "3. Search by last name\n"
@@ -230,6 +230,16 @@ static void search_record()
     int choice;
     while (1)
     {
+        printf(
+                "\n\n"
+                "1. Search by full name\n"
+                "2. Search by first name\n"
+                "3. Search by last name\n"
+                "4. Search by phone\n"
+                "5. Search by email\n"
+                "6. Go Back\n"
+                "Please enter your choice: "
+        );
         scanf("%d", &choice);
         switch (choice) {
             case 1:
@@ -242,10 +252,10 @@ static void search_record()
                 searchby_lastname();
                 break;
             case 4:
-                getby_email();
+                getby_phone();
                 break;
             case 5:
-                getby_phone();
+                getby_email();
                 break;
             case 6:
                 return;

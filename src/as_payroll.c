@@ -129,6 +129,10 @@ status_t pr_Init(pr_header_t *__h, const char *name, const char *password)
         _DEBUG("Invalid password format.");
         return ERR_FIELDFMT;
     }
+    /* copy payroll name and payroll password */
+    strcpy(__h->pr_fname, name);
+    strcpy(__h->password, password);
+
     __h->current_id = 0;
     __h->size = 0;
     __h->status = PR_ACCESS;
@@ -156,7 +160,7 @@ status_t pr_Load(pr_header_t *__h, const char *filename, const char *password)
         _DEBUG("Unable to access the file.");
         return STATUS_FAIL;
     }
-    FILE *Fp_pr = fopen(filename, "w+b");
+    FILE *Fp_pr = fopen(filename, "rb");
     if (Fp_pr == NULL)
     {
         _DEBUG("Failed to open payroll file.");
@@ -167,15 +171,13 @@ status_t pr_Load(pr_header_t *__h, const char *filename, const char *password)
     list_Init(&(__h->records), sizeof(record_t));
     /* Try to extract encrypted password in a payroll file */
     encrbuff_t encrpwd;
-    fread(&(encrpwd.nbytes), sizeof(size_t), 1, Fp_pr);
-    _DEBUG("Password nbytes load.");
-    encrpwd.buffer = (char *)malloc(encrpwd.nbytes + 1);
-    encrpwd.buffer[encrpwd.nbytes] = '\0';
-    fgets(encrpwd.buffer, encrpwd.nbytes, Fp_pr);
+    fread(&(encrpwd.nbytes), sizeof(uint64_t), 1, Fp_pr);
+    encrpwd.buffer = malloc(encrpwd.nbytes)+1;
+    fread(&(encrpwd.buffer), 1, encrpwd.nbytes, Fp_pr);
 
     /* Decrypt the password */
     char *desire_pwd;
-    rv = decrypt_str(&desire_pwd, &encrpwd);
+    rv =decrypt_buff((void**)&desire_pwd, &encrpwd);
     if (rv != STATUS_OK)
     {
         _DEBUG("Failed to decrypt.");
@@ -219,14 +221,11 @@ status_t pr_Dump(pr_header_t *__h)
         _DEBUG("Payroll Header is NULL.");
         return ERR_NULLPTR;
     }
-    /* Check if the file is accessable */
-    if (!check_filepriv(__h->pr_fname))
-    {
-        _DEBUG("File is either not exist or not accessable.");
-        return STATUS_FAIL;
-    }
     /* Open File to write */
-    FILE *Fp = fopen(__h->pr_fname, "wb");
+    char buff[256];
+    strcpy(buff, __h->pr_fname);
+    strcat(buff, EXNAME);
+    FILE *Fp = fopen(buff, "wb");
     /* Check fopen is success */
     if (Fp == NULL)
     {
@@ -244,7 +243,8 @@ status_t pr_Dump(pr_header_t *__h)
 
     /* Encrypt password */
     encrbuff_t encr_pwd;
-    rv = encrypt_str(&encr_pwd, __h->password);
+    rv =encrypt_buff(&encr_pwd, __h->password, strlen(__h->password));
+    _DEBUGF("encrypted_buff -> %s", encr_pwd.buffer);
     if (rv != STATUS_OK)
     {
         _DEBUGF("Failed to decrypt password (%d).", rv);
@@ -254,7 +254,7 @@ status_t pr_Dump(pr_header_t *__h)
     /* save password length to FILE */
     fwrite(&(encr_pwd.nbytes), sizeof(size_t),1, Fp);
     /* save encrypted password to FILE */
-    fputs(encr_pwd.buffer, Fp);
+    fwrite(&(encr_pwd.buffer),1, encr_pwd.nbytes, Fp);
 
     /* Save payroll size */
     fwrite(&(__h->size), sizeof(uint64_t), 1, Fp);
@@ -275,6 +275,7 @@ status_t pr_Dump(pr_header_t *__h)
 #endif
         fwrite((void*)(&tmp_rec), sizeof(record_t), 1, Fp);
     }
+    fclose(Fp);
     return STATUS_OK;
 }
 
